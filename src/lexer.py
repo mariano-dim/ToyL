@@ -25,7 +25,8 @@ class Lexer():
         self.lexer.add('SEMI_COLON', r'\;')
         self.lexer.add('QUOTE', r'\"')
         # Vars
-        self.lexer.add('ATTRIBUTION', r':=')
+        self.lexer.add('EQUALS', r':=')
+        self.lexer.add('COLON', r'\:')
         self.lexer.add('VAR', r'var')
         # Else
         self.lexer.add('ELSE', r'else')
@@ -33,9 +34,13 @@ class Lexer():
         self.lexer.add('IF', r'if')
         # Print
         self.lexer.add('PRINT', r'print')
+        # Types
+        self.lexer.add('INT', r'int')
+        self.lexer.add('STRING', r'string')
         # Identifier
-        self.lexer.add('IDENTIFIER', r'[a-zA-Z_][a-zA-Z_0-9]*')
+        self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z_0-9]*')
         self.lexer.ignore('\s+')
+
 
     def get_lexer(self):
         self._add_tokens()

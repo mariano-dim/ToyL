@@ -2,11 +2,11 @@ from lexer import Lexer
 from parser import Parser
 
 text_input = """
-var x;
-x := 4 * 4 + 2;
-var t;
+var x : int;
+x := 12 + 6;
+var t : int;
 t := 15;
-if (16+1 != 18){
+if (18 = x){
     x := 3;
 } else {
     x := 1 + 19;
@@ -29,5 +29,4 @@ parser = pg.get_parser()
 parser.parse(tokens).eval()
 names = pg.get_names().getAllSymbols()
 for sym in names.keys():
-    print('Symbols Table name  : ' + str(sym))
-    print('Symbols Table value : ' + str(pg.get_names().getSymbol(sym)))
+    print('Symbols Table name ' + str(sym) + ' = ' + str(pg.get_names().getSymbol(sym)))

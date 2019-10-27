@@ -2,19 +2,20 @@ from rply import ParserGenerator
 from symbolTable import SymbolTable
 from ast import (Number, Add, Sub, Mul, Div,
                  If, Statements, Bigger, Smaller,
-                 Equal, Different, Attribution, VarDec,
-                 Identifier, IfElse, Print)
+                 Equal, Different, VarDec,
+                 Identifier, IfElse, Print, Equals)
 
 
 class Parser():
     def __init__(self):
         self.pg = ParserGenerator(
             # A list of all token names, accepted by the parser.
-            ['NUMBER', 'OPEN_PARENS', 'CLOSE_PARENS',
+            ['NUMBER', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
+             'INT', 'STRING',
              'PLUS', 'MINUS', 'MUL', 'DIV', 'IF',
              'BIGGER', 'SMALLER', 'EQUAL', 'DIFF',
              'OPEN_BRACKETS', 'CLOSE_BRACKETS', 'SEMI_COLON',
-             'ATTRIBUTION', 'IDENTIFIER', 'VAR', 'ELSE', 'PRINT'
+             'EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT'
              ],
             # A list of precedence rules with ascending precedence, to
             # disambiguate ambiguous production rules.
@@ -52,15 +53,16 @@ class Parser():
         def statement_if(p):
             return IfElse(p[2], p[5], p[9])
 
-        @self.pg.production('statement : VAR IDENTIFIER SEMI_COLON')
+        @self.pg.production('statement : VAR ID COLON INT SEMI_COLON')
+        @self.pg.production('statement : VAR ID COLON STRING SEMI_COLON')
         def var_dec(p):
-            return VarDec(p[1], self.symbolTable)
+            return VarDec(p[1], p[3], self.symbolTable)
 
-        @self.pg.production('statement : IDENTIFIER ATTRIBUTION expr SEMI_COLON')
-        def attribution(p):
+        @self.pg.production('statement : ID EQUALS expr SEMI_COLON')
+        def equals(p):
             left = p[0]
             right = p[2]
-            return Attribution(left, right, self.symbolTable)
+            return Equals(left, right, self.symbolTable)
 
         @self.pg.production('statement : PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
         def print_func(p):
@@ -125,9 +127,9 @@ class Parser():
         def factor_number(p):
             return Number(int(p[0].getstr()))
 
-        @self.pg.production('factor : IDENTIFIER')
+        @self.pg.production('factor : ID')
         def identifier(p):
-            return Identifier(p[0])
+            return Identifier(p[0], self.symbolTable)
 
         @self.pg.production('factor : OPEN_PARENS expr CLOSE_PARENS')
         def expr_parens(p):

@@ -21,5 +21,5 @@ class SymbolTable():
         else:
             raise ValueError("setSymbol. Variable {} not declared".format(symbol))
 
-    def createSymbol(self, symbol):
-        self.symbols[symbol.value] = None
+    def createSymbol(self, symbol, type):
+        self.symbols[symbol.value] = [type, None]

@@ -1,4 +1,5 @@
 
+from rply import Token
 
 class Number():
     def __init__(self, value):
@@ -8,10 +9,13 @@ class Number():
         return self.value
 
 class Identifier():
-    def __init__(self, name):
+    def __init__(self, name, symbolTable):
         self.name = name
+        self.symbolTable = symbolTable
 
     def eval(self):
+        # Debo chequear que el mismo se encuentre definido
+        # symbol = self.symbolTable.getSymbol(self.name)
         return self.name
 
 class BinaryOp():
@@ -69,7 +73,19 @@ class Equal(BinaryOp):
     def eval(self):
         # Debo chequear que el 'valor' del identificador que hay a la izquierda concuerde con el valor
         # de la expresion que hay a la derecha, que tambien puede ser un identificador
-        if self.left.eval() == self.right.eval():
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+        if leftVal == rightVal:
             return True
         else:
             return False
@@ -82,7 +98,7 @@ class Different(BinaryOp):
         else:
             return False
 
-class Attribution(BinaryOp):
+class Equals(BinaryOp):
 
     def eval(self):
         name = self.left.value
@@ -90,13 +106,14 @@ class Attribution(BinaryOp):
         self.symbolTable.setSymbol(name, value)
 
 class VarDec():
-    def __init__(self, name, symbolTable):
+    def __init__(self, name, type, symbolTable):
         self.name = name
+        self.type = type
         self.symbolTable = symbolTable
 
     def eval(self):
         # Todo es un token, siempre debo convertir al valor que me interesa
-        self.symbolTable.createSymbol(self.name)
+        self.symbolTable.createSymbol(self.name, self.type)
 
 class Statements():
     def __init__(self, first_child):
