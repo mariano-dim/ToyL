@@ -5,6 +5,7 @@ class Lexer():
     def __init__(self):
         self.lexer = LexerGenerator()
 
+
     def _add_tokens(self):
         self.lexer.add('NUMBER', r'\d+')
         # Operators
@@ -27,13 +28,10 @@ class Lexer():
         self.lexer.add('ATTRIBUTION', r':=')
         self.lexer.add('VAR', r'var')
         # Else
-        self.lexer.add('ELSE', r'SENAO')
-        self.lexer.add('ELSE', r'senao')
+        self.lexer.add('ELSE', r'else')
         # If
-        self.lexer.add('IF', r'SE')
-        self.lexer.add('IF', r'se')
+        self.lexer.add('IF', r'if')
         # Print
-        self.lexer.add('PRINT', r'PRINT')
         self.lexer.add('PRINT', r'print')
         # Identifier
         self.lexer.add('IDENTIFIER', r'[a-zA-Z_][a-zA-Z_0-9]*')

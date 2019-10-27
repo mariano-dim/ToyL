@@ -1,4 +1,5 @@
 from rply import ParserGenerator
+from symbolTable import SymbolTable
 from ast import (Number, Add, Sub, Mul, Div,
                  If, Statements, Bigger, Smaller,
                  Equal, Different, Attribution, VarDec,
@@ -15,11 +16,22 @@ class Parser():
              'OPEN_BRACKETS', 'CLOSE_BRACKETS', 'SEMI_COLON',
              'ATTRIBUTION', 'IDENTIFIER', 'VAR', 'ELSE', 'PRINT'
              ],
+            # A list of precedence rules with ascending precedence, to
+            # disambiguate ambiguous production rules.
+            precedence=[
+                ('left', ['PLUS', 'MINUS']),
+                ('left', ['MUL', 'DIV'])
+            ]
         )
+        self.symbolTable = SymbolTable()
+
+    def get_names(self):
+        return self.symbolTable
 
     def parse(self):
         @self.pg.production('program : statement_list')
         def program(p):
+            # p is a list of the pieces matched by the right hand side of the rule
             return p[0]
 
         @self.pg.production('statement_list : statement')
@@ -35,19 +47,20 @@ class Parser():
         def statement_if(p):
             return If(p[2], p[5])
 
-        @self.pg.production('statement : IF OPEN_PARENS rel CLOSE_PARENS OPEN_BRACKETS statement_list CLOSE_BRACKETS ELSE OPEN_BRACKETS statement_list CLOSE_BRACKETS')
+        @self.pg.production(
+            'statement : IF OPEN_PARENS rel CLOSE_PARENS OPEN_BRACKETS statement_list CLOSE_BRACKETS ELSE OPEN_BRACKETS statement_list CLOSE_BRACKETS')
         def statement_if(p):
             return IfElse(p[2], p[5], p[9])
 
         @self.pg.production('statement : VAR IDENTIFIER SEMI_COLON')
         def var_dec(p):
-            return VarDec(p[1])
+            return VarDec(p[1], self.symbolTable)
 
         @self.pg.production('statement : IDENTIFIER ATTRIBUTION expr SEMI_COLON')
         def attribution(p):
             left = p[0]
             right = p[2]
-            return Attribution(left, right)
+            return Attribution(left, right, self.symbolTable)
 
         @self.pg.production('statement : PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
         def print_func(p):
@@ -62,13 +75,13 @@ class Parser():
             left = p[0]
             right = p[2]
             if p[1].gettokentype() == 'BIGGER':
-                return Bigger(left, right)
+                return Bigger(left, right, self.symbolTable)
             elif p[1].gettokentype() == 'SMALLER':
-                return Smaller(left, right)
+                return Smaller(left, right, self.symbolTable)
             elif p[1].gettokentype() == 'EQUAL':
-                return Equal(left, right)
+                return Equal(left, right, self.symbolTable)
             elif p[1].gettokentype() == 'DIFF':
-                return Different(left, right)
+                return Different(left, right, self.symbolTable)
             else:
                 raise AssertionError('Oops, this should not be possible!')
 
@@ -82,9 +95,9 @@ class Parser():
             left = p[0]
             right = p[2]
             if p[1].gettokentype() == 'PLUS':
-                return Add(left, right)
+                return Add(left, right, self.symbolTable)
             elif p[1].gettokentype() == 'MINUS':
-                return Sub(left, right)
+                return Sub(left, right, self.symbolTable)
             else:
                 raise AssertionError('Oops, this should not be possible!')
 
@@ -98,9 +111,9 @@ class Parser():
             left = p[0]
             right = p[2]
             if p[1].gettokentype() == 'MUL':
-                return Mul(left, right)
+                return Mul(left, right, self.symbolTable)
             elif p[1].gettokentype() == 'DIV':
-                return Div(left, right)
+                return Div(left, right, self.symbolTable)
             else:
                 raise AssertionError('Oops, this should not be possible!')
 
@@ -110,7 +123,7 @@ class Parser():
 
         @self.pg.production('factor : NUMBER')
         def factor_number(p):
-            return Number(p[0].getstr())
+            return Number(int(p[0].getstr()))
 
         @self.pg.production('factor : IDENTIFIER')
         def identifier(p):

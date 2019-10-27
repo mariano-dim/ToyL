@@ -147,7 +147,6 @@ class IfElse():
 
     def eval(self):
         cond = self.pred.eval()
-        print(cond)
         with self.builder.if_else(cond) as (then, otherwise):
             with then:
                 self.block1.eval()
