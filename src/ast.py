@@ -255,10 +255,15 @@ class Print():
         self.symbolTable = symbolTable
 
     def eval(self):
-        val = self.value.eval()
-
-        if type(val) is Token:
-            tok = val.gettokentype()
-            if tok == 'ID':
-                value = self.symbolTable.getSymbol(val.getstr())
+        value = self.value.eval()
+        if self.isIdentificator(value):
+            value = self.symbolTable.getSymbol(value.getstr())
         print(value)
+
+    def isIdentificator(self, value):
+        if type(value) is Token:
+            tok = value.gettokentype()
+            if tok == 'ID':
+                return True
+            else:
+                return False

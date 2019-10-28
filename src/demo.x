@@ -18,4 +18,5 @@ begin
 end
 print(x);
 print(t);
+print(16);
 end
