@@ -51,9 +51,9 @@ def main():
     pg.parse()
     parser = pg.get_parser()
     parser.parse(tokens).eval()
-    names = pg.get_names().getAllSymbols()
+    names = pg.get_names().get_all_symbols()
     for sym in names.keys():
-        print('Symbols Table name ' + str(sym) + ' = ' + str(pg.get_names().getSymbol(sym)))
+        print('Symbols Table name ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym)))
 
 
 

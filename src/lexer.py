@@ -38,7 +38,7 @@ class Lexer():
         self.lexer.add('STRING', r'string')
         # Identifier
         self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z_0-9]*')
-        self.lexer.ignore('\s+')
+        self.lexer.ignore(r'\s+')
 
         self.lexer.ignore(r'#.*\n')
 
