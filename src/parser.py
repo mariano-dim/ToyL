@@ -3,7 +3,7 @@ from symbolTable import SymbolTable
 from ast import (Number, Add, Sub, Mul, Div,
                  If, Statements, Bigger, Smaller,
                  Equal, Different, VarDec,
-                 Identifier, IfElse, Print, Equals)
+                 Identifier, IfElse, Print, Assignation)
 
 
 class Parser():
@@ -11,10 +11,10 @@ class Parser():
         self.pg = ParserGenerator(
             # A list of all token names, accepted by the parser.
             ['NUMBER', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
-             'INT', 'STRING',
+             'INT', 'STRING', 'BEGIN', 'END',
              'PLUS', 'MINUS', 'MUL', 'DIV', 'IF',
              'BIGGER', 'SMALLER', 'EQUAL', 'DIFF',
-             'OPEN_BRACKETS', 'CLOSE_BRACKETS', 'SEMI_COLON',
+             'SEMI_COLON',
              'EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT'
              ],
             # A list of precedence rules with ascending precedence, to
@@ -30,10 +30,10 @@ class Parser():
         return self.symbolTable
 
     def parse(self):
-        @self.pg.production('program : statement_list')
+        @self.pg.production('program : BEGIN statement_list END')
         def program(p):
             # p is a list of the pieces matched by the right hand side of the rule
-            return p[0]
+            return p[1]
 
         @self.pg.production('statement_list : statement')
         def statement_list_one(p):
@@ -44,12 +44,12 @@ class Parser():
             p[0].add_child(p[1])
             return p[0]
 
-        @self.pg.production('statement : IF OPEN_PARENS rel CLOSE_PARENS OPEN_BRACKETS statement_list CLOSE_BRACKETS')
+        @self.pg.production('statement : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
         def statement_if(p):
             return If(p[2], p[5])
 
         @self.pg.production(
-            'statement : IF OPEN_PARENS rel CLOSE_PARENS OPEN_BRACKETS statement_list CLOSE_BRACKETS ELSE OPEN_BRACKETS statement_list CLOSE_BRACKETS')
+            'statement : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
         def statement_if(p):
             return IfElse(p[2], p[5], p[9])
 
@@ -59,10 +59,10 @@ class Parser():
             return VarDec(p[1], p[3], self.symbolTable)
 
         @self.pg.production('statement : ID EQUALS expr SEMI_COLON')
-        def equals(p):
+        def assign(p):
             left = p[0]
             right = p[2]
-            return Equals(left, right, self.symbolTable)
+            return Assignation(left, right, self.symbolTable)
 
         @self.pg.production('statement : PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
         def print_func(p):

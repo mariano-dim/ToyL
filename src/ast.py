@@ -1,5 +1,5 @@
-
 from rply import Token
+
 
 class Number():
     def __init__(self, value):
@@ -7,6 +7,7 @@ class Number():
 
     def eval(self):
         return self.value
+
 
 class Identifier():
     def __init__(self, name, symbolTable):
@@ -18,6 +19,7 @@ class Identifier():
         # symbol = self.symbolTable.getSymbol(self.name)
         return self.name
 
+
 class BinaryOp():
     def __init__(self, left, right, symbolTable):
         self.left = left
@@ -28,51 +30,126 @@ class BinaryOp():
 class Add(BinaryOp):
 
     def eval(self):
-        i = self.left.eval()
-        d = self.right.eval()
-        # Si todos son numeros los sumo, si alguno es identificador obtengo el valor del mismo
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
 
-        return i + d
+        return leftVal + rightVal
+
 
 class Sub(BinaryOp):
 
     def eval(self):
-        i =  self.left.eval() #- self.right.eval()
-        return i
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+
+        return leftVal - rightVal
+
 
 class Mul(BinaryOp):
 
     def eval(self):
-        i = self.left.eval() #* self.right.eval()
-        return i
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+
+        return leftVal * rightVal
+
 
 class Div(BinaryOp):
 
     def eval(self):
-        i = self.left.eval() #/ self.right.eval()
-        return i
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+
+        return leftVal / rightVal
+
 
 class Bigger(BinaryOp):
 
     def eval(self):
-        if self.left.eval() > self.right.eval():
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+        if leftVal > rightVal:
             return True
         else:
             return False
+
 
 class Smaller(BinaryOp):
 
     def eval(self):
-        if self.left.eval() < self.right.eval():
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+        if leftVal < rightVal:
             return True
         else:
             return False
 
+
 class Equal(BinaryOp):
 
     def eval(self):
-        # Debo chequear que el 'valor' del identificador que hay a la izquierda concuerde con el valor
-        # de la expresion que hay a la derecha, que tambien puede ser un identificador
+        # Debo chequear que el 'valor' del lado izquierdo concuerde con el valor
+        # de la expresion que hay a la derecha
         leftEval = self.left.eval()
         rightEval = self.right.eval()
         leftVal = leftEval
@@ -90,20 +167,38 @@ class Equal(BinaryOp):
         else:
             return False
 
+
 class Different(BinaryOp):
 
     def eval(self):
-        if self.left.eval() != self.right.eval():
+        leftEval = self.left.eval()
+        rightEval = self.right.eval()
+        leftVal = leftEval
+        rightVal = rightEval
+        if type(leftEval) is Token:
+            tok = leftEval.gettokentype()
+            if tok == 'ID':
+                leftVal = self.symbolTable.getSymbol(leftEval.getstr())
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+        if leftVal != rightVal:
             return True
         else:
             return False
 
-class Equals(BinaryOp):
+
+class Assignation(BinaryOp):
 
     def eval(self):
-        name = self.left.value
-        value = self.right.eval()
-        self.symbolTable.setSymbol(name, value)
+        rightEval = self.right.eval()
+        if type(rightEval) is Token:
+            tok = rightEval.gettokentype()
+            if tok == 'ID':
+                rightVal = self.symbolTable.getSymbol(rightEval.getstr())
+        self.symbolTable.setSymbol(self.left.getstr(), rightEval)
+
 
 class VarDec():
     def __init__(self, name, type, symbolTable):
@@ -115,6 +210,7 @@ class VarDec():
         # Todo es un token, siempre debo convertir al valor que me interesa
         self.symbolTable.createSymbol(self.name, self.type)
 
+
 class Statements():
     def __init__(self, first_child):
         self.children = [first_child]
@@ -125,6 +221,7 @@ class Statements():
     def eval(self):
         for i in self.children:
             i.eval()
+
 
 class If():
     def __init__(self, pred, block):
@@ -151,6 +248,7 @@ class IfElse():
         else:
             self.block2.eval()
 
+
 class Print():
     def __init__(self, value):
         self.value = value
@@ -160,4 +258,3 @@ class Print():
         # Si es un Token del tipo idenfificador debo imprimir el valor (Token.value) del valor
         # Si es un identificador, debo ir a buscar su valor a la tabla de simbolos
         print(str(value.value))
-

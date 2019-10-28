@@ -5,7 +5,6 @@ class Lexer():
     def __init__(self):
         self.lexer = LexerGenerator()
 
-
     def _add_tokens(self):
         self.lexer.add('NUMBER', r'\d+')
         # Operators
@@ -13,6 +12,8 @@ class Lexer():
         self.lexer.add('MINUS', r'-')
         self.lexer.add('MUL', r'\*')
         self.lexer.add('DIV', r'/')
+        self.lexer.add('BEGIN', r'begin')
+        self.lexer.add('END', r'end')
         # Comp
         self.lexer.add('BIGGER', r'\>')
         self.lexer.add('SMALLER', r'\<')
@@ -20,8 +21,6 @@ class Lexer():
         self.lexer.add('DIFF', r'\!=')
         self.lexer.add('OPEN_PARENS', r'\(')
         self.lexer.add('CLOSE_PARENS', r'\)')
-        self.lexer.add('OPEN_BRACKETS', r'\{')
-        self.lexer.add('CLOSE_BRACKETS', r'\}')
         self.lexer.add('SEMI_COLON', r'\;')
         self.lexer.add('QUOTE', r'\"')
         # Vars
@@ -41,6 +40,7 @@ class Lexer():
         self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z_0-9]*')
         self.lexer.ignore('\s+')
 
+        self.lexer.ignore(r'#.*\n')
 
     def get_lexer(self):
         self._add_tokens()
