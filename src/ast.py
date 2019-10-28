@@ -250,11 +250,15 @@ class IfElse():
 
 
 class Print():
-    def __init__(self, value):
+    def __init__(self, value, symbolTable):
         self.value = value
+        self.symbolTable = symbolTable
 
     def eval(self):
-        value = self.value.eval()
-        # Si es un Token del tipo idenfificador debo imprimir el valor (Token.value) del valor
-        # Si es un identificador, debo ir a buscar su valor a la tabla de simbolos
-        print(str(value.value))
+        val = self.value.eval()
+
+        if type(val) is Token:
+            tok = val.gettokentype()
+            if tok == 'ID':
+                value = self.symbolTable.getSymbol(val.getstr())
+        print(value)

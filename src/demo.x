@@ -17,4 +17,5 @@ begin
     end
 end
 print(x);
+print(t);
 end

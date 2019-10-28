@@ -67,7 +67,7 @@ class Parser():
         @self.pg.production('statement : PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
         def print_func(p):
             value = p[2]
-            return Print(value)
+            return Print(value, self.symbolTable)
 
         @self.pg.production('rel : expr BIGGER expr')
         @self.pg.production('rel : expr SMALLER expr')
