@@ -1,3 +1,6 @@
+from symbolsWrapper import SymbolsWrapper
+
+
 class SymbolTable():
     def __init__(self):
         self.symbols = {}
@@ -16,9 +19,9 @@ class SymbolTable():
         if symbol in self.symbols.keys():
             # Value puede ser un numero, una cadena.. o un el resultado de una expresion
             # Si es un identificador esta ok, debo obtener al valor asociado
-            self.symbols[symbol] = value
+            self.symbols[symbol].set_value(value)
         else:
             raise ValueError("set_symbol. Variable {} not declared".format(symbol))
 
     def create_symbol(self, symbol, type):
-        self.symbols[symbol] = [type, None]
+        self.symbols[symbol] = SymbolsWrapper(symbol, type, None)

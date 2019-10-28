@@ -6,7 +6,7 @@ class Lexer():
         self.lexer = LexerGenerator()
 
     def _add_tokens(self):
-        self.lexer.add('NUMBER', r'\d+')
+
         # Operators
         self.lexer.add('PLUS', r'\+')
         self.lexer.add('MINUS', r'-')
@@ -22,7 +22,6 @@ class Lexer():
         self.lexer.add('OPEN_PARENS', r'\(')
         self.lexer.add('CLOSE_PARENS', r'\)')
         self.lexer.add('SEMI_COLON', r'\;')
-        self.lexer.add('QUOTE', r'\"')
         # Vars
         self.lexer.add('EQUALS', r':=')
         self.lexer.add('COLON', r'\:')
@@ -31,11 +30,19 @@ class Lexer():
         self.lexer.add('ELSE', r'else')
         # If
         self.lexer.add('IF', r'if')
+        # While
+        self.lexer.add('WHILE', r'while')
+        # Do
+        self.lexer.add('DO', r'do')
         # Print
         self.lexer.add('PRINT', r'print')
         # Types
         self.lexer.add('INT', r'int')
         self.lexer.add('STRING', r'string')
+        # Numero (Por ahora un entero muy especial)
+        self.lexer.add('NUMBER_TYPE', r'\d+')
+        # Cadena de texto
+        self.lexer.add('STRING_TYPE', r'\".[a-zA-Z_0-9]*?\"')
         # Identifier
         self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z_0-9]*')
         self.lexer.ignore(r'\s+')
@@ -45,3 +52,5 @@ class Lexer():
     def get_lexer(self):
         self._add_tokens()
         return self.lexer.build()
+
+

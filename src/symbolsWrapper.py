@@ -1,0 +1,24 @@
+class SymbolsWrapper:
+
+    def __init__(self, name=None, type=None, value=None):
+        self.name = name
+        self.type = type
+        self.value = value
+
+    def set_value(self, value):
+        self.value = value
+
+    def set_name(self, name):
+        self.name = name
+
+    def set_type(self, type):
+        self.type = type
+
+    def get_value(self):
+        return self.value
+
+    def get_name(self):
+        return self.name
+
+    def get_type(self):
+        return self.type

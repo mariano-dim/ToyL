@@ -1,7 +1,7 @@
 from rply import ParserGenerator
 from symbolTable import SymbolTable
-from ast import (Number, Add, Sub, Mul, Div,
-                 If, Statements, Bigger, Smaller,
+from ast import (Number, Add, Sub, Mul, Div, String,
+                 If, While, DoWhile, Statements, Bigger, Smaller,
                  Equal, Different, VarDec,
                  Identifier, IfElse, Print, Assignation)
 
@@ -10,17 +10,14 @@ class Parser():
     def __init__(self):
         self.pg = ParserGenerator(
             # A list of all token names, accepted by the parser.
-            ['NUMBER', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
-             'INT', 'STRING', 'BEGIN', 'END',
-             'PLUS', 'MINUS', 'MUL', 'DIV', 'IF',
-             'BIGGER', 'SMALLER', 'EQUAL', 'DIFF',
-             'SEMI_COLON',
-             'EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT'
+            ['NUMBER_TYPE', 'STRING_TYPE', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
+             'INT', 'STRING', 'BEGIN', 'END','PLUS', 'IF', 'WHILE', 'DO',
+             'BIGGER', 'SEMI_COLON','EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT',
+             'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER'
              ],
             # A list of precedence rules with ascending precedence, to
             # disambiguate ambiguous production rules.
             precedence=[
-                ('nonassoc', ['SMALLER', 'BIGGER']),
                 ('left', ['PLUS', 'MINUS']),
                 ('left', ['MUL', 'DIV']),
             ]
@@ -54,6 +51,22 @@ class Parser():
         def statement_if(p):
             return IfElse(p[2], p[5], p[9])
 
+        @self.pg.production('statement : WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
+        def statement_if(p):
+            return While(p[2], p[5])
+
+        @self.pg.production('statement : WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
+        def statement_if(p):
+            print("Error de sintaxis en statement WHILE. Expresion erronea")
+
+        @self.pg.production('statement : DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS')
+        def statement_if(p):
+            return DoWhile(p[6], p[2])
+
+        @self.pg.production('statement : DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS')
+        def statement_if(p):
+            print("Error de sintaxis en statement DO-WHILE. Expresion erronea")
+
         @self.pg.production('statement : VAR ID COLON INT SEMI_COLON')
         @self.pg.production('statement : VAR ID COLON STRING SEMI_COLON')
         def var_dec(p):
@@ -65,10 +78,18 @@ class Parser():
             right = p[2]
             return Assignation(left, right, self.symbol_table)
 
+        @self.pg.production('statement : ID EQUALS error SEMI_COLON')
+        def assign(p):
+            print("Error de sintaxis en statement ASSIGN. Expresion erronea")
+
         @self.pg.production('statement : PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
         def print_func(p):
             value = p[2]
             return Print(value, self.symbol_table)
+
+        @self.pg.production('statement : PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
+        def print_func(p):
+            print("Error de sintaxis en statement PRINT. Expresion erronea")
 
         @self.pg.production('rel : expr BIGGER expr')
         @self.pg.production('rel : expr SMALLER expr')
@@ -79,62 +100,52 @@ class Parser():
             right = p[2]
             if p[1].gettokentype() == 'BIGGER':
                 return Bigger(left, right, self.symbol_table)
-            elif p[1].gettokentype() == 'SMALLER':
+            if p[1].gettokentype() == 'SMALLER':
                 return Smaller(left, right, self.symbol_table)
-            elif p[1].gettokentype() == 'EQUAL':
+            if p[1].gettokentype() == 'EQUAL':
                 return Equal(left, right, self.symbol_table)
-            elif p[1].gettokentype() == 'DIFF':
+            if p[1].gettokentype() == 'DIFF':
                 return Different(left, right, self.symbol_table)
             else:
-                raise AssertionError('Oops, this should not be possible!')
+                raise AssertionError('Error, no es posible este valor en una operacion rel!')
 
-        @self.pg.production('statement : expr')
-        def statement_expr(p):
-            return p[0]
-
-        @self.pg.production('expr : term PLUS term')
-        @self.pg.production('expr : term MINUS term')
+        @self.pg.production('expr : expr PLUS expr')
+        @self.pg.production('expr : expr MINUS expr')
+        @self.pg.production('expr : expr MUL expr')
+        @self.pg.production('expr : expr DIV expr')
         def expr_binop(p):
             left = p[0]
             right = p[2]
             if p[1].gettokentype() == 'PLUS':
                 return Add(left, right, self.symbol_table)
-            elif p[1].gettokentype() == 'MINUS':
+            if p[1].gettokentype() == 'MINUS':
                 return Sub(left, right, self.symbol_table)
-            else:
-                raise AssertionError('Oops, this should not be possible!')
-
-        @self.pg.production('expr : term')
-        def expr_term(p):
-            return p[0]
-
-        @self.pg.production('term : factor MUL factor')
-        @self.pg.production('term : factor DIV factor')
-        def term(p):
-            left = p[0]
-            right = p[2]
             if p[1].gettokentype() == 'MUL':
                 return Mul(left, right, self.symbol_table)
-            elif p[1].gettokentype() == 'DIV':
+            if p[1].gettokentype() == 'DIV':
                 return Div(left, right, self.symbol_table)
             else:
                 raise AssertionError('Oops, this should not be possible!')
 
-        @self.pg.production('term : factor')
+        @self.pg.production('expr : OPEN_PARENS expr CLOSE_PARENS')
+        def expr_parens(p):
+            return p[1]
+
+        @self.pg.production('expr : factor')
         def term_factor(p):
             return p[0]
 
-        @self.pg.production('factor : NUMBER')
-        def factor_number(p):
+        @self.pg.production('factor : NUMBER_TYPE')
+        def factor_number_type(p):
             return Number(p[0])
+
+        @self.pg.production('factor : STRING_TYPE')
+        def factor_string_type(p):
+            return String(p[0])
 
         @self.pg.production('factor : ID')
         def identifier(p):
             return Identifier(p[0], self.symbol_table)
-
-        @self.pg.production('factor : OPEN_PARENS expr CLOSE_PARENS')
-        def expr_parens(p):
-            return p[1]
 
         @self.pg.error
         def error_handle(token):

@@ -10,8 +10,6 @@
 import os
 import sys
 from builtins import print
-#import xinterpreter
-
 from lexer import Lexer
 from parser import Parser
 
@@ -52,8 +50,10 @@ def main():
     parser = pg.get_parser()
     parser.parse(tokens).eval()
     names = pg.get_names().get_all_symbols()
+    print('Imprimiendo tabla de simbolos')
     for sym in names.keys():
-        print('Symbols Table name ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym)))
+        print('Simbolo:' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+        + pg.get_names().get_symbol(sym).get_type())
 
 
 
