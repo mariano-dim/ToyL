@@ -196,20 +196,21 @@ class WidgetGallery(QDialog):
         print('Tokenizer button click')
         # Create lexer
         lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.read_file())
+        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
 
         text = None
         for tok in tokens:
             print('type=%r, value=%r' % (tok.gettokentype(), tok.getstr()))
-            # text += (str(tok.gettokentype()) + str(tok.getstr()))
             self.textEditprocessedSourceCode.append(tok.gettokentype() + '---' + tok.getstr())
 
     @pyqtSlot()
     def on_clickParser(self):
         print('Parser button click')
+        self.textEditprocessedSourceCode.clear()
         # Create lexer
         lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.textEditSourceCode)
+        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
+
         # Create parser
         pg = Parser()
         pg.parse()
@@ -220,20 +221,22 @@ class WidgetGallery(QDialog):
     @pyqtSlot()
     def on_clickInterpreter(self):
         print('Interpreter button click')
+        self.textEditprocessedSourceCode.clear()
         # Create lexer
         lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.textEditSourceCode)
+        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
         # Create parser
         pg = Parser()
         pg.parse()
         parser = pg.get_parser()
 
-        self.textEditprocessedSourceCode.setPlainText("text")
         parser.parse(tokens).eval()
         names = pg.get_names().get_all_symbols()
         print('Imprimiendo tabla de simbolos')
         for sym in names.keys():
             print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+                  + pg.get_names().get_symbol(sym).get_type())
+            self.textEditprocessedSourceCode.append('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
                   + pg.get_names().get_symbol(sym).get_type())
 
 
