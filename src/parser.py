@@ -20,6 +20,7 @@ class Parser():
             precedence=[
                 ('left', ['PLUS', 'MINUS']),
                 ('left', ['MUL', 'DIV']),
+                ("right", ["UMINUS"]),
             ]
         )
         self.symbol_table = SymbolTable()
@@ -130,6 +131,10 @@ class Parser():
         @self.pg.production('expr : OPEN_PARENS expr CLOSE_PARENS')
         def expr_parens(p):
             return p[1]
+
+        # @self.pg.production("expr : MINUS expr", precedence="UMINUS")
+        # def expr_uminus(p):
+        #     return -p[1]
 
         @self.pg.production('expr : factor')
         def term_factor(p):

@@ -43,6 +43,8 @@ class BinaryOp():
             left_val = left_eval.getstr()
         elif Utils.is_id(left_eval):
             left_val = self.symbol_table.get_symbol(left_eval.getstr()).get_value()
+        elif Utils.is_string(left_eval):
+            raise ValueError('Error de tipos')
         elif isinstance(left_eval, int):
             left_val = left_eval
 
@@ -50,6 +52,8 @@ class BinaryOp():
             right_val = right_eval.getstr()
         elif Utils.is_id(right_eval):
             right_val = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
+        elif Utils.is_string(right_eval):
+            raise ValueError('Error de tipos')
         elif isinstance(right_eval, int):
             right_val = right_eval
         return left_val, right_val

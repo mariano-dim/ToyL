@@ -52,7 +52,7 @@ def main():
     names = pg.get_names().get_all_symbols()
     print('Imprimiendo tabla de simbolos')
     for sym in names.keys():
-        print('Simbolo:' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+        print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
         + pg.get_names().get_symbol(sym).get_type())
 
 

@@ -6,7 +6,8 @@ begin
     t := 30+x +(10*2+5*2);
     var J : string;
     J := "hola";
-    print(J);
+    J := "mundo";
+    #print(J);
     print("Mundo");
 
     if (x > 1)
