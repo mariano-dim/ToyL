@@ -12,6 +12,7 @@ import sys
 from builtins import print
 from lexer import Lexer
 from parser import Parser
+from ast import BaseASTNode
 
 
 def main():
@@ -55,6 +56,9 @@ def main():
         print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
         + pg.get_names().get_symbol(sym).get_type())
 
+    # Imprimiendo el resultado de la lista de resultados del programa
+    for op in BaseASTNode.get_result():
+        print(op)
 
 
 

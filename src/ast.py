@@ -1,7 +1,30 @@
 from rply import Token
 
 
-class Number:
+class BaseASTNode:
+    # Esta lista representa el resultado final del interprete, que se debe mostrar en pantalla
+    result = []
+
+    def __init__(self):
+        print('Inicializando nuevo objeto del tipo BaseASTNode')
+
+    @staticmethod
+    def add_result(value):
+        # Todo subresultado agregado debe ser imprimible
+        BaseASTNode.result.append(value)
+        print(value)
+
+    @staticmethod
+    def clean_result():
+        # Todo subresultado agregado debe ser imprimible
+        BaseASTNode.result.clear()
+
+    @staticmethod
+    def get_result():
+        return BaseASTNode.result
+
+
+class Number(BaseASTNode):
     def __init__(self, value):
         self.value = value
 
@@ -9,7 +32,7 @@ class Number:
         return self.value
 
 
-class String:
+class String(BaseASTNode):
     def __init__(self, value):
         self.value = value
 
@@ -17,7 +40,7 @@ class String:
         return self.value
 
 
-class Identifier:
+class Identifier(BaseASTNode):
     def __init__(self, name, symbol_table):
         self.name = name
         self.symbol_table = symbol_table
@@ -53,41 +76,42 @@ class BinaryOp():
         elif Utils.is_id(right_eval):
             right_val = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
         elif Utils.is_string(right_eval):
+            BaseASTNode.add_result('Error de tipos')
             raise ValueError('Error de tipos')
         elif isinstance(right_eval, int):
             right_val = right_eval
         return left_val, right_val
 
 
-class Add(BinaryOp):
+class Add(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
         return int(left_val) + int(right_val)
 
 
-class Sub(BinaryOp):
+class Sub(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
         return int(left_val) - int(right_val)
 
 
-class Mul(BinaryOp):
+class Mul(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
         return int(left_val) * int(right_val)
 
 
-class Div(BinaryOp):
+class Div(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
         return int(left_val) / int(right_val)
 
 
-class Bigger(BinaryOp):
+class Bigger(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
@@ -97,7 +121,7 @@ class Bigger(BinaryOp):
             return False
 
 
-class Smaller(BinaryOp):
+class Smaller(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
@@ -107,7 +131,7 @@ class Smaller(BinaryOp):
             return False
 
 
-class Equal(BinaryOp):
+class Equal(BinaryOp, BaseASTNode):
 
     def eval(self):
         # Debo chequear que el 'valor' del lado izquierdo concuerde con el valor
@@ -119,7 +143,7 @@ class Equal(BinaryOp):
             return False
 
 
-class Different(BinaryOp):
+class Different(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
@@ -129,7 +153,7 @@ class Different(BinaryOp):
             return False
 
 
-class Assignation(BinaryOp):
+class Assignation(BinaryOp, BaseASTNode):
 
     def eval(self):
         # Solo analizo la parte derecha, ya que la izquierda es un Identificador y solo debo revisar
@@ -159,11 +183,12 @@ class Assignation(BinaryOp):
         if td_var_left == td_var_right:
             self.symbol_table.set_symbol(self.left.getstr(), right_value)
         else:
+            BaseASTNode.add_result('Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right) )
             raise ValueError(
                 "Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
 
 
-class VarDec:
+class VarDec(BaseASTNode):
     def __init__(self, token_name, token_type, symbol_table):
         # Obtengo el valor de cada Token antes de ser procesado
         self.name = token_name.getstr()
@@ -177,7 +202,7 @@ class VarDec:
         self.symbol_table.create_symbol(self.name, self.type)
 
 
-class Statements:
+class Statements(BaseASTNode):
     def __init__(self, first_child):
         self.children = [first_child]
 
@@ -189,7 +214,7 @@ class Statements:
             i.eval()
 
 
-class If:
+class If(BaseASTNode):
     def __init__(self, pred, block):
         self.pred = pred
         self.block = block
@@ -201,7 +226,7 @@ class If:
             self.block.eval()
 
 
-class IfElse:
+class IfElse(BaseASTNode):
     def __init__(self, pred, block1, block2):
         self.pred = pred
         self.block1 = block1
@@ -215,7 +240,7 @@ class IfElse:
             self.block2.eval()
 
 
-class While:
+class While(BaseASTNode):
     def __init__(self, cond, block):
         self.cond = cond
         self.block = block
@@ -227,7 +252,7 @@ class While:
             self.eval()
 
 
-class DoWhile:
+class DoWhile(BaseASTNode):
     def __init__(self, cond, block):
         self.cond = cond
         self.block = block
@@ -248,7 +273,7 @@ class DoWhile:
                 self.eval()
 
 
-class Print:
+class Print(BaseASTNode):
     def __init__(self, value, symbol_table):
         self.value = value
         self.symbol_table = symbol_table
@@ -261,6 +286,7 @@ class Print:
             value = value.getstr()
         elif Utils.is_num(value):
             value = value.getstr()
+        BaseASTNode.add_result(value)
         print(value)
 
 

@@ -1,23 +1,27 @@
 #!/usr/bin/python
 import os
 
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import QDateTime, Qt, QTimer, pyqtSlot
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
                              QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
                              QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
                              QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QPlainTextEdit)
 
 import sys
 from builtins import print
 from lexer import Lexer
 from parser import Parser
+from ast import BaseASTNode
 
 
 class WidgetGallery(QDialog):
     def __init__(self, parent=None):
         super(WidgetGallery, self).__init__(parent)
-
+        # self.showMaximized()
+        self.setFixedSize(1024, 600)
         self.textEditprocessedSourceCode = None
         self.textEditSourceCode = None
 
@@ -36,7 +40,6 @@ class WidgetGallery(QDialog):
 
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
-        # self.createbottomRightTabWidget()
         self.createbottomLeftGroupBox()
 
         styleComboBox.activated[str].connect(self.changeStyle)
@@ -112,9 +115,10 @@ class WidgetGallery(QDialog):
                                                 QSizePolicy.Ignored)
 
         tab1 = QWidget()
-        self.textEditprocessedSourceCode = QTextEdit()
+        self.textEditprocessedSourceCode = QPlainTextEdit()
 
         self.textEditprocessedSourceCode.setPlainText("")
+        self.textEditprocessedSourceCode.setFont(QFont("Arial", 12))
 
         tab1hbox = QHBoxLayout()
         tab1hbox.setContentsMargins(5, 5, 5, 5)
@@ -140,10 +144,16 @@ class WidgetGallery(QDialog):
         interpreterPushButton.setChecked(True)
         interpreterPushButton.clicked.connect(self.on_clickInterpreter)
 
+        cleanerPushButton = QPushButton("Clean TextBox")
+        cleanerPushButton.setToolTip('Limpiar TextBox resultados')
+        cleanerPushButton.setChecked(True)
+        cleanerPushButton.clicked.connect(self.on_clickCleanResults)
+
         layout = QVBoxLayout()
         layout.addWidget(tokenizarPushButton)
         layout.addWidget(parsearPushButton)
         layout.addWidget(interpreterPushButton)
+        layout.addWidget(cleanerPushButton)
 
         layout.addStretch(1)
         self.topRightGroupBox.setLayout(layout)
@@ -155,10 +165,10 @@ class WidgetGallery(QDialog):
         self.bottomLeftGroupBox.setCheckable(True)
         self.bottomLeftGroupBox.setChecked(True)
 
-        self.textEditSourceCode = QTextEdit()
+        self.textEditSourceCode = QPlainTextEdit()
+        self.textEditSourceCode.setFont(QFont("Arial", 12))
 
         content = self.read_file()
-
         self.textEditSourceCode.setPlainText(content)
 
         # lineEdit = QLineEdit('s3cRe7')
@@ -192,16 +202,24 @@ class WidgetGallery(QDialog):
         self.bottomLeftGroupBox.setLayout(layout)
 
     @pyqtSlot()
+    def on_clickCleanResults(self):
+        print('Limpiar resultados')
+        self.textEditprocessedSourceCode.clear()
+
+    @pyqtSlot()
     def on_clickTokenizar(self):
         print('Tokenizer button click')
+        self.textEditprocessedSourceCode.clear()
         # Create lexer
         lexer = Lexer().get_lexer()
         tokens = lexer.lex(self.textEditSourceCode.toPlainText())
 
         text = None
         for tok in tokens:
-            print('type=%r, value=%r' % (tok.gettokentype(), tok.getstr()))
-            self.textEditprocessedSourceCode.append(tok.gettokentype() + '---' + tok.getstr())
+            print('{op: ' '<35}'.format(op=tok.gettokentype())
+                  + '{oy: ' '>5}'.format(oy=tok.getstr()))
+            self.textEditprocessedSourceCode.appendPlainText(
+                'TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.gettokentype(), val=tok.getstr()))
 
     @pyqtSlot()
     def on_clickParser(self):
@@ -216,12 +234,12 @@ class WidgetGallery(QDialog):
         pg.parse()
         parser = pg.get_parser()
 
-        self.textEditprocessedSourceCode.setPlainText("")
-
     @pyqtSlot()
     def on_clickInterpreter(self):
         print('Interpreter button click')
         self.textEditprocessedSourceCode.clear()
+        # Limpio la variable resultado, ya que de tener un valor es de la ejecucion anterior
+        BaseASTNode.clean_result()
         # Create lexer
         lexer = Lexer().get_lexer()
         tokens = lexer.lex(self.textEditSourceCode.toPlainText())
@@ -229,16 +247,20 @@ class WidgetGallery(QDialog):
         pg = Parser()
         pg.parse()
         parser = pg.get_parser()
-
         parser.parse(tokens).eval()
+
+        # Imprimiendo el resultado de la lista de resultados del programa
+        for op in BaseASTNode.get_result():
+            self.textEditprocessedSourceCode.appendPlainText(op)
+
         names = pg.get_names().get_all_symbols()
         print('Imprimiendo tabla de simbolos')
         for sym in names.keys():
             print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
                   + pg.get_names().get_symbol(sym).get_type())
-            self.textEditprocessedSourceCode.append('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-                  + pg.get_names().get_symbol(sym).get_type())
-
+            self.textEditprocessedSourceCode.appendPlainText(
+                'Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+                + pg.get_names().get_symbol(sym).get_type())
 
     def read_file(self):
         # Leo el archivo que se indique ...y lo muestro del lado izquierdo de la pantalla
