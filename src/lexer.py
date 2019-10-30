@@ -6,7 +6,6 @@ class Lexer():
         self.lexer = LexerGenerator()
 
     def _add_tokens(self):
-
         # Operators
         self.lexer.add('PLUS', r'\+')
         self.lexer.add('MINUS', r'-')
@@ -44,7 +43,7 @@ class Lexer():
         # Cadena de texto
         self.lexer.add('STRING_TYPE', r'\".[a-zA-Z_0-9]*?\"')
         # Identifier
-        self.lexer.add('ID', r'[a-zA-Z_][a-zA-Z_0-9]*')
+        self.lexer.add('ID', r'[a-zA-Z][a-zA-Z_0-9_]*')
         self.lexer.ignore(r'\s+')
 
         self.lexer.ignore(r'#.*\n')

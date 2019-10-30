@@ -1,9 +1,8 @@
 from rply import ParserGenerator
 from symbolTable import SymbolTable
-from ast import (Number, Add, Sub, Mul, Div, String,
-                 If, While, DoWhile, Statements, Bigger, Smaller,
-                 Equal, Different, VarDec,
-                 Identifier, IfElse, Print, Assignation)
+from ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
+                 Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
+                 Print, Assignation, Empty)
 
 
 class Parser():
@@ -33,6 +32,14 @@ class Parser():
         def program(p):
             # p is a list of the pieces matched by the right hand side of the rule
             return p[1]
+
+        @self.pg.production('program : BEGIN empty END')
+        def program_empty(p):
+            return Empty()
+
+        @self.pg.production('program : empty')
+        def program_empty(p):
+            return Empty()
 
         @self.pg.production('statement_list : statement')
         def statement_list_one(p):
@@ -155,6 +162,10 @@ class Parser():
         @self.pg.error
         def error_handle(token):
             raise ValueError(token)
+
+        @self.pg.production('empty :')
+        def p_empty(p):
+            pass
 
     def get_parser(self):
         return self.pg.build()

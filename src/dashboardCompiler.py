@@ -214,7 +214,6 @@ class WidgetGallery(QDialog):
         lexer = Lexer().get_lexer()
         tokens = lexer.lex(self.textEditSourceCode.toPlainText())
 
-        text = None
         for tok in tokens:
             print('{op: ' '<35}'.format(op=tok.gettokentype())
                   + '{oy: ' '>5}'.format(oy=tok.getstr()))
@@ -251,7 +250,7 @@ class WidgetGallery(QDialog):
 
         # Imprimiendo el resultado de la lista de resultados del programa
         for op in BaseASTNode.get_result():
-            self.textEditprocessedSourceCode.appendPlainText(op)
+            self.textEditprocessedSourceCode.appendPlainText(str(op))
 
         names = pg.get_names().get_all_symbols()
         print('Imprimiendo tabla de simbolos')

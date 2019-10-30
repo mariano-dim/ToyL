@@ -45,11 +45,21 @@ def main():
     # Create lexer
     lexer = Lexer().get_lexer()
     tokens = lexer.lex(content)
+
+    for tok in tokens:
+        print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.gettokentype(),
+                                                          val=tok.getstr()))
+
+    # Create lexer again, because vars are in a bad state
+    lexer = Lexer().get_lexer()
+    tokens = lexer.lex(content)
+
     # Create parser
     pg = Parser()
     pg.parse()
     parser = pg.get_parser()
-    parser.parse(tokens).eval()
+    tokens = parser.parse(tokens).eval()
+
     names = pg.get_names().get_all_symbols()
     print('Imprimiendo tabla de simbolos')
     for sym in names.keys():

@@ -6,7 +6,7 @@ class BaseASTNode:
     result = []
 
     def __init__(self):
-        print('Inicializando nuevo objeto del tipo BaseASTNode')
+        pass
 
     @staticmethod
     def add_result(value):
@@ -22,6 +22,12 @@ class BaseASTNode:
     @staticmethod
     def get_result():
         return BaseASTNode.result
+
+
+class Empty(BaseASTNode):
+
+    def eval(self):
+        return None
 
 
 class Number(BaseASTNode):
@@ -183,7 +189,8 @@ class Assignation(BinaryOp, BaseASTNode):
         if td_var_left == td_var_right:
             self.symbol_table.set_symbol(self.left.getstr(), right_value)
         else:
-            BaseASTNode.add_result('Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right) )
+            BaseASTNode.add_result(
+                'Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
             raise ValueError(
                 "Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
 
