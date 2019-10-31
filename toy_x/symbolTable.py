@@ -1,4 +1,4 @@
-from symbolsWrapper import SymbolsWrapper
+from toy_x.symbolsWrapper import SymbolsWrapper
 
 
 class SymbolTable():
@@ -24,4 +24,7 @@ class SymbolTable():
             raise ValueError("set_symbol. Variable {} not declared".format(symbol))
 
     def create_symbol(self, symbol, type):
+        # Hay que tener en cuenta si el id es local o no. Una forma de manejar esto es a traves de
+        # una pila, es decir, se apila cuando se ingresa a un bloque y se desapila cuando se sale del
+        # mismo o se finaliza la operacion
         self.symbols[symbol] = SymbolsWrapper(symbol, type, None)

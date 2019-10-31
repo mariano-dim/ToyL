@@ -1,5 +1,6 @@
 from rply import LexerGenerator
 
+
 class Lexer():
     def __init__(self):
         self.lexer = LexerGenerator()
@@ -56,5 +57,3 @@ class Lexer():
     def get_lexer(self):
         self._add_tokens()
         return self.lexer.build()
-
-

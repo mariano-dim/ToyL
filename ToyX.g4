@@ -12,8 +12,8 @@ statement_list
     ;
 
 statement
-    : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
-    | IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END
+    : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END
+    | IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
     | WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
     | FOR ID EQUALS expr TO expr DO BEGIN statement_list END
     | DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS

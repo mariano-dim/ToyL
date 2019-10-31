@@ -1,16 +1,17 @@
 from rply import ParserGenerator
 from toy_x.symbolTable import SymbolTable
 from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
-                 Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
-                 Print, Assignation, Empty, ForLoop)
+                       Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
+                       Print, Assignation, Empty, ForLoop)
+
 
 class Parser():
     def __init__(self):
         self.pg = ParserGenerator(
             # A list of all token names, accepted by the parser.
             ['NUMBER_TYPE', 'STRING_TYPE', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
-             'INT', 'STRING', 'BEGIN', 'END','PLUS', 'IF', 'WHILE', 'DO',
-             'BIGGER', 'SEMI_COLON','EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT',
+             'INT', 'STRING', 'BEGIN', 'END', 'PLUS', 'IF', 'WHILE', 'DO',
+             'BIGGER', 'SEMI_COLON', 'EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT',
              'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER', 'FOR',
              'TO',
              ],

@@ -1,5 +1,6 @@
 from rply import Token
 
+
 class BaseASTNode:
     # Esta lista representa el resultado final del interprete, que se debe mostrar en pantalla
     result = []
