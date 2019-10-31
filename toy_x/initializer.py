@@ -10,9 +10,9 @@
 import os
 import sys
 from builtins import print
-from lexer import Lexer
-from parser import Parser
-from ast import BaseASTNode
+from toy_x.lexer import Lexer
+from toy_x.parser import Parser
+from toy_x.ast import BaseASTNode
 
 
 def main():

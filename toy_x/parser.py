@@ -1,9 +1,8 @@
 from rply import ParserGenerator
-from symbolTable import SymbolTable
-from ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
+from toy_x.symbolTable import SymbolTable
+from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                  Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
                  Print, Assignation, Empty, ForLoop)
-
 
 class Parser():
     def __init__(self):
