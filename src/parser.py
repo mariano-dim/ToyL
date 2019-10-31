@@ -2,7 +2,7 @@ from rply import ParserGenerator
 from symbolTable import SymbolTable
 from ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                  Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
-                 Print, Assignation, Empty)
+                 Print, Assignation, Empty, ForLoop)
 
 
 class Parser():
@@ -12,7 +12,8 @@ class Parser():
             ['NUMBER_TYPE', 'STRING_TYPE', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
              'INT', 'STRING', 'BEGIN', 'END','PLUS', 'IF', 'WHILE', 'DO',
              'BIGGER', 'SEMI_COLON','EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT',
-             'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER'
+             'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER', 'FOR',
+             'TO',
              ],
             # A list of precedence rules with ascending precedence, to
             # disambiguate ambiguous production rules.
@@ -49,6 +50,10 @@ class Parser():
         def statement_list_rest(p):
             p[0].add_child(p[1])
             return p[0]
+
+        @self.pg.production('statement : FOR ID EQUALS expr TO expr DO BEGIN statement_list END')
+        def statement_list_rest(p):
+            return ForLoop(p[1], p[3], p[5], p[8], self.symbol_table)
 
         @self.pg.production('statement : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
         def statement_if(p):

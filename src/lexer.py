@@ -29,8 +29,14 @@ class Lexer():
         self.lexer.add('ELSE', r'else')
         # If
         self.lexer.add('IF', r'if')
+        # To
+        self.lexer.add('TO', r'to')
+        # DownTo
+        self.lexer.add('DOWNTO', r'downto')
         # While
         self.lexer.add('WHILE', r'while')
+        # For
+        self.lexer.add('FOR', r'for')
         # Do
         self.lexer.add('DO', r'do')
         # Print

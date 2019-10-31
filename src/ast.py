@@ -259,6 +259,56 @@ class While(BaseASTNode):
             self.eval()
 
 
+class ForLoop(BaseASTNode):
+    def __init__(self, id, left_expr, right_expr, block, symbol_table):
+        self.id = id
+        self.left_expr = left_expr
+        self.right_expr = right_expr
+        self.block = block
+        self.symbol_table = symbol_table
+        self.declare_and_set_right_variable()
+        self.first_check = True
+
+    def declare_and_set_right_variable(self):
+
+        self.symbol_table.create_symbol(self.id.getstr(), 'int')
+        # Obtengo el valor del token de la primera expresion, solo admito numeros
+        left_value = self.left_expr.eval()
+        if Utils.is_num(left_value):
+            left_val = left_value.getstr()
+        else:
+            raise ValueError('Error de tipos en ForLoop')
+        self.symbol_table.set_symbol(self.id.getstr(), left_val)
+
+    def eval(self):
+        # En el caso del forLoop la variable asignada a la iteracion es local, por lo tanto
+        # no es necesario chequear que exista en el entorno. Cuando se salga del bucle la misma se elimina
+        # Por otro lado es importante considerarla dentro del bloque
+        # Cada vez que defino una nueva variable, tengo que considerar el scope de la misma
+        # En este caso estoy declarando una variable sin lado izquierdo, ya que a la misma no se le
+        # puede cambiar el valor una vez definida
+        # El tipo de datos de las variables de LoopFor es numerico
+        # Por otro lado, a diferencia del caso de DoWhile o While, donde se modifica el valor
+        # del loop a traves de explicitas modificaciones de variables dentro del loop, aqui
+        # no es factible hacer lo mismo y es necesario decrementar el valor directamente
+        # La expresion de la izquieza la cambio yo
+        # El valor izquierdo lo deb buscar en la tabla de variables, y no en la expresion
+        # La expresion de la derecha es INMUTABLE, no debe cambiar
+        left_val = self.symbol_table.get_symbol(self.id.getstr()).get_value()
+        right_value = self.right_expr.eval()
+        if Utils.is_num(right_value):
+            right_val = right_value.getstr()
+        else:
+            Utils.is_string(right_value)
+            BaseASTNode.add_result('Error de tipos')
+            raise ValueError('Error de tipos en ForLoop')
+
+        self.symbol_table.set_symbol(self.id.getstr(), left_val)
+        if int(left_val) < int(right_val):
+            self.block.eval()
+            self.eval()
+
+
 class DoWhile(BaseASTNode):
     def __init__(self, cond, block):
         self.cond = cond
