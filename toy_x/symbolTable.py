@@ -1,4 +1,4 @@
-from symbolsWrapper import SymbolsWrapper
+from toy_x.symbolsWrapper import SymbolsWrapper
 
 
 class SymbolTable():
