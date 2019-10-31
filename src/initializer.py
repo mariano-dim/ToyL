@@ -60,15 +60,15 @@ def main():
     parser = pg.get_parser()
     tokens = parser.parse(tokens).eval()
 
-    # names = pg.get_names().get_all_symbols()
-    # print('Imprimiendo tabla de simbolos')
-    # for sym in names.keys():
-    #     print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-    #     + pg.get_names().get_symbol(sym).get_type())
-    #
-    # # Imprimiendo el resultado de la lista de resultados del programa
-    # for op in BaseASTNode.get_result():
-    #     print(op)
+    names = pg.get_names().get_all_symbols()
+    print('Imprimiendo tabla de simbolos')
+    for sym in names.keys():
+        print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+        + pg.get_names().get_symbol(sym).get_type())
+
+    # Imprimiendo el resultado de la lista de resultados del programa
+    for op in BaseASTNode.get_result():
+        print(op)
 
 
 

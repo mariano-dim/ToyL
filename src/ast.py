@@ -12,7 +12,6 @@ class BaseASTNode:
     def add_result(value):
         # Todo subresultado agregado debe ser imprimible
         BaseASTNode.result.append(value)
-        print(value)
 
     @staticmethod
     def clean_result():
@@ -266,19 +265,27 @@ class ForLoop(BaseASTNode):
         self.right_expr = right_expr
         self.block = block
         self.symbol_table = symbol_table
+        self.left_val = None
+        self.right_val = None
         self.declare_and_set_right_variable()
-        self.first_check = True
 
     def declare_and_set_right_variable(self):
 
+        # Obtengo el valor izquierdo y lo registro como tal
         self.symbol_table.create_symbol(self.id.getstr(), 'int')
         # Obtengo el valor del token de la primera expresion, solo admito numeros
         left_value = self.left_expr.eval()
         if Utils.is_num(left_value):
-            left_val = left_value.getstr()
+            self.left_val = int(left_value.getstr())
         else:
-            raise ValueError('Error de tipos en ForLoop')
-        self.symbol_table.set_symbol(self.id.getstr(), left_val)
+            raise ValueError('Error de tipos en ForLoop, expresion left no es un numero')
+        self.symbol_table.set_symbol(self.id.getstr(), self.left_val)
+        # Obtengo el valor derecho
+        right_value = self.right_expr.eval()
+        if Utils.is_num(right_value):
+            self.right_val = int(right_value.getstr())
+        else:
+            raise ValueError('Error de tipos en ForLoop, expresion right no es un numero')
 
     def eval(self):
         # En el caso del forLoop la variable asignada a la iteracion es local, por lo tanto
@@ -294,19 +301,15 @@ class ForLoop(BaseASTNode):
         # La expresion de la izquieza la cambio yo
         # El valor izquierdo lo deb buscar en la tabla de variables, y no en la expresion
         # La expresion de la derecha es INMUTABLE, no debe cambiar
-        left_val = self.symbol_table.get_symbol(self.id.getstr()).get_value()
-        right_value = self.right_expr.eval()
-        if Utils.is_num(right_value):
-            right_val = right_value.getstr()
-        else:
-            Utils.is_string(right_value)
-            BaseASTNode.add_result('Error de tipos')
-            raise ValueError('Error de tipos en ForLoop')
-
-        self.symbol_table.set_symbol(self.id.getstr(), left_val)
-        if int(left_val) < int(right_val):
+        # El valor de la variable lo tengo en la recursion, pero lo debo registrar para que
+        # cualquier uso u operacion dentro del scope tenga el valor correcto
+        # Lo puedo resolver mas eficientemente sin recursion, a traves de un bucle y de paso me olvido del
+        # problema de los parametros de eval()
+        paso = self.left_val
+        while paso < self.right_val:
             self.block.eval()
-            self.eval()
+            paso += 1
+            self.symbol_table.set_symbol(self.id.getstr(), paso)
 
 
 class DoWhile(BaseASTNode):

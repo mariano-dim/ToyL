@@ -1,17 +1,15 @@
 #!/usr/bin/python
 import os
 
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import QDateTime, Qt, QTimer, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox, QDateTimeEdit,
-                             QDial, QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-                             QProgressBar, QPushButton, QRadioButton, QScrollBar, QSizePolicy,
-                             QSlider, QSpinBox, QStyleFactory, QTableWidget, QTabWidget, QTextEdit,
+from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox,
+                             QDialog, QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QRadioButton, QSizePolicy,
+                             QStyleFactory, QTableWidget, QTabWidget,
                              QVBoxLayout, QWidget, QPlainTextEdit)
 
 import sys
-from builtins import print
 from lexer import Lexer
 from parser import Parser
 from ast import BaseASTNode
@@ -36,37 +34,30 @@ class WidgetGallery(QDialog):
         self.useStylePaletteCheckBox = QCheckBox("&Usar estilos predeterminados")
         self.useStylePaletteCheckBox.setChecked(True)
 
-        disableWidgetsCheckBox = QCheckBox("&Deshabilitar widgets")
-
         self.createTopLeftGroupBox()
         self.createTopRightGroupBox()
-        self.createbottomLeftGroupBox()
 
         styleComboBox.activated[str].connect(self.changeStyle)
         self.useStylePaletteCheckBox.toggled.connect(self.changePalette)
-        disableWidgetsCheckBox.toggled.connect(self.topLeftGroupBox.setDisabled)
-        disableWidgetsCheckBox.toggled.connect(self.topRightGroupBox.setDisabled)
-        disableWidgetsCheckBox.toggled.connect(self.bottomRightTabWidget.setDisabled)
-        disableWidgetsCheckBox.toggled.connect(self.bottomLeftGroupBox.setDisabled)
 
         topLayout = QHBoxLayout()
         topLayout.addWidget(styleLabel)
         topLayout.addWidget(styleComboBox)
         topLayout.addStretch(1)
         topLayout.addWidget(self.useStylePaletteCheckBox)
-        topLayout.addWidget(disableWidgetsCheckBox)
 
         mainLayout = QGridLayout()
         mainLayout.addLayout(topLayout, 0, 0, 1, 2)
-        mainLayout.addWidget(self.topLeftGroupBox, 1, 0)
+        mainLayout.addWidget(self.topLeftGroupBox, 1, 0, 2,1)
         mainLayout.addWidget(self.topRightGroupBox, 1, 1)
-        mainLayout.addWidget(self.bottomLeftGroupBox, 2, 0)
         mainLayout.addWidget(self.bottomRightTabWidget, 2, 1)
-        # mainLayout.addWidget(self.progressBar, 3, 0, 1, 2)
+
         mainLayout.setRowStretch(1, 1)
         mainLayout.setRowStretch(2, 1)
+
         mainLayout.setColumnStretch(0, 1)
-        mainLayout.setColumnStretch(1, 1)
+        mainLayout.setColumnStretch(1, 2)
+
         self.setLayout(mainLayout)
 
         self.setWindowTitle("Proyecto X")
@@ -88,23 +79,18 @@ class WidgetGallery(QDialog):
         self.progressBar.setValue(curVal + (maxVal - curVal) / 100)
 
     def createTopLeftGroupBox(self):
-        self.topLeftGroupBox = QGroupBox("Input")
+        self.topLeftGroupBox = QGroupBox("Source Code")
+        self.topLeftGroupBox.setCheckable(True)
+        self.topLeftGroupBox.setChecked(True)
 
-        radioButton1 = QRadioButton("Radio button 1")
-        radioButton2 = QRadioButton("Radio button 2")
-        radioButton3 = QRadioButton("Radio button 3")
-        radioButton1.setChecked(True)
+        self.textEditSourceCode = QPlainTextEdit()
+        self.textEditSourceCode.setFont(QFont("Arial", 12))
 
-        checkBox = QCheckBox("Tri-state check box")
-        checkBox.setTristate(True)
-        checkBox.setCheckState(Qt.PartiallyChecked)
+        content = self.read_file()
+        self.textEditSourceCode.setPlainText(content)
 
-        layout = QVBoxLayout()
-        layout.addWidget(radioButton1)
-        layout.addWidget(radioButton2)
-        layout.addWidget(radioButton3)
-        layout.addWidget(checkBox)
-        layout.addStretch(1)
+        layout = QGridLayout()
+        layout.addWidget(self.textEditSourceCode, 0, 0, 1, 2)
         self.topLeftGroupBox.setLayout(layout)
 
     def createTopRightGroupBox(self):
@@ -144,6 +130,11 @@ class WidgetGallery(QDialog):
         interpreterPushButton.setChecked(True)
         interpreterPushButton.clicked.connect(self.on_clickInterpreter)
 
+        symbolsPushButton = QPushButton("Mostrar Tabla de Simbolos")
+        symbolsPushButton.setToolTip('Muestra la tabla de simbolos')
+        symbolsPushButton.setChecked(True)
+        symbolsPushButton.clicked.connect(self.on_clickSymbolsResults)
+
         cleanerPushButton = QPushButton("Clean TextBox")
         cleanerPushButton.setToolTip('Limpiar TextBox resultados')
         cleanerPushButton.setChecked(True)
@@ -154,52 +145,35 @@ class WidgetGallery(QDialog):
         layout.addWidget(parsearPushButton)
         layout.addWidget(interpreterPushButton)
         layout.addWidget(cleanerPushButton)
+        layout.addWidget(symbolsPushButton)
 
         layout.addStretch(1)
         self.topRightGroupBox.setLayout(layout)
 
-    def createbottomLeftGroupBox(self):
 
-        # -----------------------------------------------------------------------------------
-        self.bottomLeftGroupBox = QGroupBox("Source Code")
-        self.bottomLeftGroupBox.setCheckable(True)
-        self.bottomLeftGroupBox.setChecked(True)
+    @pyqtSlot()
+    def on_clickSymbolsResults(self):
+        print('Interpreter button click')
+        self.textEditprocessedSourceCode.clear()
+        # Limpio la variable resultado, ya que de tener un valor es de la ejecucion anterior
+        BaseASTNode.clean_result()
+        # Create lexer
+        lexer = Lexer().get_lexer()
+        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
+        # Create parser
+        pg = Parser()
+        pg.parse()
+        parser = pg.get_parser()
+        parser.parse(tokens).eval()
 
-        self.textEditSourceCode = QPlainTextEdit()
-        self.textEditSourceCode.setFont(QFont("Arial", 12))
-
-        content = self.read_file()
-        self.textEditSourceCode.setPlainText(content)
-
-        # lineEdit = QLineEdit('s3cRe7')
-        # lineEdit.setEchoMode(QLineEdit.Password)
-
-        # spinBox = QSpinBox(self.bottomLeftGroupBox)
-        # spinBox.setValue(50)
-
-        # dateTimeEdit = QDateTimeEdit(self.bottomLeftGroupBox)
-        # dateTimeEdit.setDateTime(QDateTime.currentDateTime())
-
-        # slider = QSlider(Qt.Horizontal, self.bottomLeftGroupBox)
-        # slider.setValue(40)
-
-        # scrollBar = QScrollBar(Qt.Horizontal, self.bottomLeftGroupBox)
-        # scrollBar.setValue(60)
-
-        # dial = QDial(self.bottomLeftGroupBox)
-        # dial.setValue(30)
-        # dial.setNotchesVisible(True)
-
-        layout = QGridLayout()
-        layout.addWidget(self.textEditSourceCode, 0, 0, 1, 2)
-        # layout.addWidget(lineEdit, 0, 0, 1, 2)
-        # layout.addWidget(spinBox, 1, 0, 1, 2)
-        # layout.addWidget(dateTimeEdit, 2, 0, 1, 2)
-        # layout.addWidget(slider, 3, 0)
-        # layout.addWidget(scrollBar, 4, 0)
-        # layout.addWidget(dial, 3, 1, 2, 1)
-        layout.setRowStretch(5, 1)
-        self.bottomLeftGroupBox.setLayout(layout)
+        names = pg.get_names().get_all_symbols()
+        print('Imprimiendo tabla de simbolos')
+        for sym in names.keys():
+            print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+                  + pg.get_names().get_symbol(sym).get_type())
+            self.textEditprocessedSourceCode.appendPlainText(
+                'Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
+                + pg.get_names().get_symbol(sym).get_type())
 
     @pyqtSlot()
     def on_clickCleanResults(self):
@@ -251,15 +225,6 @@ class WidgetGallery(QDialog):
         # Imprimiendo el resultado de la lista de resultados del programa
         for op in BaseASTNode.get_result():
             self.textEditprocessedSourceCode.appendPlainText(str(op))
-
-        names = pg.get_names().get_all_symbols()
-        print('Imprimiendo tabla de simbolos')
-        for sym in names.keys():
-            print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-                  + pg.get_names().get_symbol(sym).get_type())
-            self.textEditprocessedSourceCode.appendPlainText(
-                'Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-                + pg.get_names().get_symbol(sym).get_type())
 
     def read_file(self):
         # Leo el archivo que se indique ...y lo muestro del lado izquierdo de la pantalla
