@@ -2,7 +2,7 @@ from rply import ParserGenerator
 from toy_x.symbolTable import SymbolTable
 from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                        Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
-                       Print, Assignation, Empty, ForLoop
+                       Print, Assignation, Empty, ForLoop, ForList
                        )
 
 
@@ -13,7 +13,7 @@ class Parser():
             ['NUMBER_TYPE', 'STRING_TYPE', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
              'INT', 'STRING', 'BEGIN', 'END', 'PLUS', 'IF', 'WHILE', 'DO',
              'BIGGER', 'SEMI_COLON', 'EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT',
-             'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER','FOR','TO',
+             'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER','FOR','TO', 'DOWNTO',
              ],
             # A list of precedence rules with ascending precedence, to
             # disambiguate ambiguous production rules.
@@ -50,10 +50,6 @@ class Parser():
         def statement_list_rest(p):
             p[0].add_child(p[1])
             return p[0]
-
-        @self.pg.production('statement : FOR ID EQUALS expr TO expr DO BEGIN statement_list END')
-        def statement_list_rest(p):
-            return ForLoop(p[1], p[3], p[5], p[8], self.symbol_table)
 
         @self.pg.production('statement : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
         def statement_if(p):
@@ -103,6 +99,23 @@ class Parser():
         @self.pg.production('statement : PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
         def print_func(p):
             print("Error de sintaxis en statement PRINT. Expresion erronea")
+
+        @self.pg.production('statement : FOR ID EQUALS for_list DO BEGIN statement_list END')
+        def statement_for(p):
+            return ForLoop(p[1], p[3], p[6], self.symbol_table)
+
+        @self.pg.production('for_list : initial_value OPEN_PARENS TO CLOSE_PARENS final_value')
+        @self.pg.production('for_list : initial_value OPEN_PARENS DOWNTO CLOSE_PARENS final_value')
+        def for_list(p):
+            return ForList(p[0], p[2], p[4])
+
+        @self.pg.production('initial_value : expr')
+        def initial_value(p):
+            return p[0]
+
+        @self.pg.production('final_value : expr')
+        def final_value(p):
+            return p[0]
 
         @self.pg.production('rel : expr BIGGER expr')
         @self.pg.production('rel : expr SMALLER expr')

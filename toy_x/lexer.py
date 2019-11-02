@@ -47,7 +47,7 @@ class Lexer():
         # Numero (Por ahora un entero muy especial)
         self.lexer.add('NUMBER_TYPE', r'\d+')
         # Cadena de texto
-        self.lexer.add('STRING_TYPE', r'\".[a-zA-Z_0-9]*?\"')
+        self.lexer.add('STRING_TYPE', r'\".[a-zA-Z_0-9 ]*?\"')
         # Identifier
         self.lexer.add('ID', r'[a-zA-Z][a-zA-Z_0-9_]*')
         self.lexer.ignore(r'\s+')

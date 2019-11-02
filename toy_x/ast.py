@@ -34,7 +34,10 @@ class Number(BaseASTNode):
         self.value = value
 
     def eval(self):
-        return self.value
+        if Utils.is_num(self.value):
+            return int(self.value.getstr())
+        else:
+            raise ValueError('Error de tipo numerico')
 
 
 class String(BaseASTNode):
@@ -258,60 +261,6 @@ class While(BaseASTNode):
             self.eval()
 
 
-class ForLoop(BaseASTNode):
-    def __init__(self, id, left_expr, right_expr, block, symbol_table):
-        self.id = id
-        self.left_expr = left_expr
-        self.right_expr = right_expr
-        self.block = block
-        self.symbol_table = symbol_table
-        self.left_val = None
-        self.right_val = None
-        self.declare_and_set_right_variable()
-
-    def declare_and_set_right_variable(self):
-
-        # Obtengo el valor izquierdo y lo registro como tal
-        self.symbol_table.create_symbol(self.id.getstr(), 'int')
-        # Obtengo el valor del token de la primera expresion, solo admito numeros
-        left_value = self.left_expr.eval()
-        if Utils.is_num(left_value):
-            self.left_val = int(left_value.getstr())
-        else:
-            raise ValueError('Error de tipos en ForLoop, expresion left no es un numero')
-        self.symbol_table.set_symbol_value(self.id.getstr(), self.left_val)
-        # Obtengo el valor derecho
-        right_value = self.right_expr.eval()
-        if Utils.is_num(right_value):
-            self.right_val = int(right_value.getstr())
-        else:
-            raise ValueError('Error de tipos en ForLoop, expresion right no es un numero')
-
-    def eval(self):
-        # En el caso del forLoop la variable asignada a la iteracion es local, por lo tanto
-        # no es necesario chequear que exista en el entorno. Cuando se salga del bucle la misma se elimina
-        # Por otro lado es importante considerarla dentro del bloque
-        # Cada vez que defino una nueva variable, tengo que considerar el scope de la misma
-        # En este caso estoy declarando una variable sin lado izquierdo, ya que a la misma no se le
-        # puede cambiar el valor una vez definida
-        # El tipo de datos de las variables de LoopFor es numerico
-        # Por otro lado, a diferencia del caso de DoWhile o While, donde se modifica el valor
-        # del loop a traves de explicitas modificaciones de variables dentro del loop, aqui
-        # no es factible hacer lo mismo y es necesario decrementar el valor directamente
-        # La expresion de la izquieza la cambio yo
-        # El valor izquierdo lo deb buscar en la tabla de variables, y no en la expresion
-        # La expresion de la derecha es INMUTABLE, no debe cambiar
-        # El valor de la variable lo tengo en la recursion, pero lo debo registrar para que
-        # cualquier uso u operacion dentro del scope tenga el valor correcto
-        # Lo puedo resolver mas eficientemente sin recursion, a traves de un bucle y de paso me olvido del
-        # problema de los parametros de eval()
-        paso = self.left_val
-        while paso < self.right_val:
-            self.block.eval()
-            paso += 1
-            self.symbol_table.set_symbol_value(self.id.getstr(), paso)
-
-
 class DoWhile(BaseASTNode):
     def __init__(self, cond, block):
         self.cond = cond
@@ -344,10 +293,50 @@ class Print(BaseASTNode):
             value = self.symbol_table.get_symbol(value.getstr()).get_value()
         elif Utils.is_string(value):
             value = value.getstr()
-        elif Utils.is_num(value):
-            value = value.getstr()
+
         BaseASTNode.add_result(value)
         print(value)
+
+
+class ForLoop(BaseASTNode):
+    def __init__(self, id, for_list, statement_list, symbol_table):
+        self.id = id
+        self.for_list = for_list
+        self.statement_list = statement_list
+        self.symbol_table = symbol_table
+
+    def eval(self):
+        initial_value = self.for_list.initial_value.eval()
+        final_value = self.for_list.final_value.eval()
+        orden = self.for_list.orden
+
+        # Obtengo el valor izquierdo de la nueva variable y lo registro
+        self.symbol_table.create_symbol(self.id.getstr(), 'int')
+
+        step_value = initial_value
+        if Utils.is_orden_to(orden):
+            while step_value <= final_value:
+                self.symbol_table.set_symbol_value(self.id.getstr(), step_value)
+                self.statement_list.eval()
+                step_value += 1
+        else:
+            while step_value >= final_value:
+                self.symbol_table.set_symbol_value(self.id.getstr(), step_value)
+                self.statement_list.eval()
+                step_value -= 1
+        pass
+
+
+class ForList(BaseASTNode):
+    def __init__(self, initial_value, orden, final_value):
+        self.id = id
+        self.initial_value = initial_value
+        self.orden = orden
+        self.final_value = final_value
+
+    def eval(self):
+        # Aca puedo chequear limites u semantica del orden
+        pass
 
 
 class Utils:
@@ -375,6 +364,24 @@ class Utils:
         if type(value) is Token:
             tok = value.gettokentype()
             if tok == 'STRING_TYPE':
+                return True
+            else:
+                return False
+
+    @staticmethod
+    def is_orden_to(value):
+        if type(value) is Token:
+            tok = value.gettokentype()
+            if tok == 'TO':
+                return True
+            else:
+                return False
+
+    @staticmethod
+    def is_orden_downto(value):
+        if type(value) is Token:
+            tok = value.gettokentype()
+            if tok == 'DOWNTO':
                 return True
             else:
                 return False

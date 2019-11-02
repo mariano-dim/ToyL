@@ -15,13 +15,25 @@ statement
     : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END
     | IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
     | WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
-    | FOR ID EQUALS expr TO expr DO BEGIN statement_list END
+    | FOR ID EQUALS for_list DO BEGIN statement_list END
     | DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS
     | VAR ID COLON INT SEMI_COLON
     | VAR ID COLON STRING SEMI_COLON
     | ID EQUALS expr SEMI_COLON
     | PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON
     ;
+
+for_list
+   : initial_value (TO | DOWNTO) final_value
+   ;
+
+initial_value
+   : expr
+   ;
+
+final_value
+   : expr
+   ;
 
 rel
     : expr BIGGER expr
@@ -62,6 +74,8 @@ INT:                            'int';
 STRING:                         'string';
 TO:                             'to';
 FOR:                            'for';
+DOWNTO:                         'downto';
+
 
 OPEN_PARENS:                    '(';
 CLOSE_PARENS:                   ')';
