@@ -309,7 +309,7 @@ class ForLoop(BaseASTNode):
         while paso < self.right_val:
             self.block.eval()
             paso += 1
-            self.symbol_table.set_symbol(self.id.getstr(), paso)
+            self.symbol_table.set_symbol_value(self.id.getstr(), paso)
 
 
 class DoWhile(BaseASTNode):

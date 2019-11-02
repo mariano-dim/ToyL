@@ -14,4 +14,13 @@ begin
        local := 1000;
        print(e);
     end
+
+    var t: int;
+    t:= 1;
+
+    while (t <20)
+    begin
+        print(t);
+        t:= t+1;
+    end
 end

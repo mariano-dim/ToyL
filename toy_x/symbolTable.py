@@ -3,6 +3,9 @@ from toy_x.utils.pila import Pila
 
 
 class SymbolTable():
+    """ Representa una table de simbolos. Internamente la tabla es un diccionario, donde
+        el valor de cada key es una pila"""
+
     def __init__(self):
         self.symbols = {}
 
@@ -10,10 +13,13 @@ class SymbolTable():
         return self.symbols
 
     def get_symbol(self, symbol):
+        # Una vez que consulto el elemento, debo tener cuidado de no eliminarlo de la pila
         heap = self.symbols.get(symbol)
         # Si no existe Pila, la creo
         if heap:
-            return heap.desapilar()
+            value =  heap.desapilar()
+            heap.apilar(value)
+            return value
         else:
             raise ValueError("set_symbol_value. ID {} no fue declarado".format(symbol))
 
@@ -28,7 +34,7 @@ class SymbolTable():
                 if sw:
                     # Seteo el valor y vuelvo a apilar el elemento
                     sw.set_value(value)
-                    heap.apilar(symbol)
+                    heap.apilar(sw)
                 else:
                     raise ValueError(
                         "set_symbol_value. ID {} no posee su estructura de datos interna con datos".format(symbol))
@@ -54,4 +60,3 @@ class SymbolTable():
 
         sb = SymbolsWrapper(symbol, type)
         heap.apilar(sb)
-        print(sb)
