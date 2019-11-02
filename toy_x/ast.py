@@ -186,7 +186,7 @@ class Assignation(BinaryOp, BaseASTNode):
 
         # Justo antes de setear el valor chequeo que la expresion sea del tipo esperado
         if td_var_left == td_var_right:
-            self.symbol_table.set_symbol(self.left.getstr(), right_value)
+            self.symbol_table.set_symbol_value(self.left.getstr(), right_value)
         else:
             BaseASTNode.add_result(
                 'Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
@@ -279,7 +279,7 @@ class ForLoop(BaseASTNode):
             self.left_val = int(left_value.getstr())
         else:
             raise ValueError('Error de tipos en ForLoop, expresion left no es un numero')
-        self.symbol_table.set_symbol(self.id.getstr(), self.left_val)
+        self.symbol_table.set_symbol_value(self.id.getstr(), self.left_val)
         # Obtengo el valor derecho
         right_value = self.right_expr.eval()
         if Utils.is_num(right_value):

@@ -2,7 +2,7 @@
 
 class Pila:
     """ Representa una pila con operaciones de apilar, desapilar y
-        verificar si está vacía. """
+        verificar si está vacía. La Pila es agnostica del valor que se apila, ya que no hay comprobacion de tipos"""
 
     def __init__(self):
         """ Crea una pila vacía. """
@@ -20,7 +20,7 @@ class Pila:
         try:
             return self.items.pop()
         except IndexError:
-            raise ValueError("La pila está vacía")
+            raise ValueError("La pila de simbolos está vacía")
 
     def es_vacia(self):
         """ Devuelve True si la lista está vacía, False si no. """

@@ -1,16 +1,19 @@
+from toy_x.utils.pila import Pila
+
+
 class SymbolsWrapper:
 
-    def __init__(self, name=None, type=None, value=None, location=None):
+    def __init__(self, name, type=None, value=None, location=None):
         self.name = name
         self.type = type
         self.value = value
         self.location = location
 
-    def set_value(self, value):
-        self.value = value
-
     def set_name(self, name):
         self.name = name
+
+    def set_value(self, value):
+        self.value = value
 
     def set_type(self, type):
         self.type = type
