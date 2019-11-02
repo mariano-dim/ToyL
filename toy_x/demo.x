@@ -7,9 +7,9 @@ begin
         s := s+1;
     end
 
-    for e := 1 (to) 10 do
+    for e := 1 (to) 2 do
     begin
-        for f := 1 (to) 10 do
+        for f := 1 (to) 2 do
         begin
             print(f);
         end
@@ -22,5 +22,11 @@ begin
         cadena := "hola mundo";
         print(cadena);
     end
+
+    var minus : int;
+    minus := -1;
+    print(minus);
+    minus := -minus ;
+    print(minus);
 
 end

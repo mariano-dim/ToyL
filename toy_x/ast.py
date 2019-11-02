@@ -39,6 +39,18 @@ class Number(BaseASTNode):
         else:
             raise ValueError('Error de tipo numerico')
 
+class MinusExpression(BaseASTNode):
+    def __init__(self, value, symbol_table):
+        self.value = value
+        self.symbol_table = symbol_table
+
+    def eval(self):
+        value = self.value.eval()
+        if Utils.is_id(value):
+            value = self.symbol_table.get_symbol(value.getstr()).get_value()
+        elif not isinstance(value, int):
+            raise ValueError('Se esperaba un Identificador o un numero entero')
+        return -value
 
 class String(BaseASTNode):
     def __init__(self, value):
@@ -70,18 +82,14 @@ class BinaryOp():
         right_eval = self.right.eval()
         left_val = None
         right_val = None
-        if Utils.is_num(left_eval):
-            left_val = left_eval.getstr()
-        elif Utils.is_id(left_eval):
+        if Utils.is_id(left_eval):
             left_val = self.symbol_table.get_symbol(left_eval.getstr()).get_value()
         elif Utils.is_string(left_eval):
             raise ValueError('Error de tipos')
         elif isinstance(left_eval, int):
             left_val = left_eval
 
-        if Utils.is_num(right_eval):
-            right_val = right_eval.getstr()
-        elif Utils.is_id(right_eval):
+        if Utils.is_id(right_eval):
             right_val = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
         elif Utils.is_string(right_eval):
             BaseASTNode.add_result('Error de tipos')
@@ -310,8 +318,7 @@ class ForLoop(BaseASTNode):
         final_value = self.for_list.final_value.eval()
         orden = self.for_list.orden
 
-        # Obtengo el valor izquierdo de la nueva variable y lo registro
-        self.symbol_table.create_symbol(self.id.getstr(), 'int')
+        self.symbol_table.create_symbol(self.id.getstr(), 'int', 'not_izda')
 
         step_value = initial_value
         if Utils.is_orden_to(orden):

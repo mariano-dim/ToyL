@@ -2,7 +2,7 @@ from rply import ParserGenerator
 from toy_x.symbolTable import SymbolTable
 from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                        Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
-                       Print, Assignation, Empty, ForLoop, ForList
+                       Print, Assignation, Empty, ForLoop, ForList, MinusExpression
                        )
 
 
@@ -117,6 +117,10 @@ class Parser():
         def final_value(p):
             return p[0]
 
+        @self.pg.production('expr : MINUS expr', precedence='UMINUS')
+        def negative_expr(p):
+            return MinusExpression(p[1], self.symbol_table)
+
         @self.pg.production('rel : expr BIGGER expr')
         @self.pg.production('rel : expr SMALLER expr')
         @self.pg.production('rel : expr EQUAL expr')
@@ -156,10 +160,6 @@ class Parser():
         @self.pg.production('expr : OPEN_PARENS expr CLOSE_PARENS')
         def expr_parens(p):
             return p[1]
-
-        # @self.pg.production("expr : MINUS expr", precedence="UMINUS")
-        # def expr_uminus(p):
-        #     return -p[1]
 
         @self.pg.production('expr : factor')
         def term_factor(p):

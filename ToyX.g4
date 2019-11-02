@@ -24,7 +24,8 @@ statement
     ;
 
 for_list
-   : initial_value (TO | DOWNTO) final_value
+   : initial_value OPEN_PARENS TO CLOSE_PARENS final_value
+   | initial_value OPEN_PARENS DOWNTO CLOSE_PARENS final_value
    ;
 
 initial_value
@@ -49,6 +50,7 @@ expr
     | expr DIV expr
     | OPEN_PARENS expr CLOSE_PARENS
     | factor
+    | MINUS expr
     ;
 
 factor
@@ -96,7 +98,7 @@ NUMBER_TYPE
     ;
 
 STRING_TYPE
-    :   '"' ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')* '"'
+    :   '"' ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | ' ')* '"'
     ;
 
 ID

@@ -43,7 +43,7 @@ class SymbolTable():
         else:
             raise ValueError("set_symbol_value. ID {} no fue declarado".format(symbol))
 
-    def create_symbol(self, symbol, type):
+    def create_symbol(self, symbol, type, location=None):
         # Hay que tener en cuenta si el id es local o no. Una forma de manejar esto es a traves de
         # una pila, es decir, se apila cuando se ingresa a un bloque y se desapila cuando se sale del
         # mismo o se finaliza la operacion
@@ -58,5 +58,5 @@ class SymbolTable():
             # Si la Pila existe la obtengo
             heap = self.symbols[symbol]
 
-        sb = SymbolsWrapper(symbol, type)
+        sb = SymbolsWrapper(symbol, type, location)
         heap.apilar(sb)

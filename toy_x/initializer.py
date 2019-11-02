@@ -64,7 +64,8 @@ def main():
     print('Imprimiendo tabla de simbolos')
     for sym in names.keys():
         print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-        + pg.get_names().get_symbol(sym).get_type())
+        + pg.get_names().get_symbol(sym).get_type() )
+        #+ ' - ' + pg.get_names().get_symbol(sym).get_location() )
 
     # Imprimiendo el resultado de la lista de resultados del programa
     for op in BaseASTNode.get_result():
