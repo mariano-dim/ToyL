@@ -46,29 +46,33 @@ def main():
     # Create lexer
     print("Tokenizando...")
     lexer = ToyLexer()
-    print(content)
+    # print(content)
     lexer.startLexer()
 
-    for tok in lexer.tokenize(content):
-        print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type,
-                                                          val=tok.value))
+    # for tok in lexer.tokenize(content):
+    #     print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type,
+    #                                                       val=tok.value))
     # Create parser
     print("Parseando...")
     parser = ToyParser()
-    parser.parse(lexer.tokenize(content)).eval()
+    # ast es el arbol AST expresado a traves de un objeto principal Statements
+    ast = parser.parse(lexer.tokenize(content))
+
+    #ast.print()
+    ast.eval()
 
     # Simbol table
     names = parser.get_names().get_all_symbols()
 
-    print('Imprimiendo tabla de simbolos')
-    for sym in names.keys():
-        print('Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
-        + parser.get_names().get_symbol(sym).get_type() )
-        #+ ' - ' + pg.get_names().get_symbol(sym).get_location() )
-
-    # Imprimiendo el resultado de la lista de resultados del programa
-    for op in BaseASTNode.get_result():
-        print(op)
+    # print('Imprimiendo tabla de simbolos')
+    # for sym in names.keys():
+    #     print('Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
+    #     + parser.get_names().get_symbol(sym).get_type() )
+    #     #+ ' - ' + pg.get_names().get_symbol(sym).get_location() )
+    #
+    # # Imprimiendo el resultado de la lista de resultados del programa
+    # for op in BaseASTNode.get_result():
+    #     print(op)
 
 
 if __name__ == '__main__':

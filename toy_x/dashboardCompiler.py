@@ -207,7 +207,11 @@ class WidgetGallery(QDialog):
         # Create parser
         print("Parseando...")
         parser = ToyParser()
-        parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText())).eval()
+        # ast es el arbol AST expresado a traves de un objeto principal Statements
+        ast = parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText()))
+
+        ast.eval()
+
 
     @pyqtSlot()
     def on_clickInterpreter(self):

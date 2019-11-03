@@ -1,11 +1,16 @@
 import numbers
 
+
 class BaseASTNode:
     # Esta lista representa el resultado final del interprete, que se debe mostrar en pantalla
     result = []
 
     def __init__(self):
         pass
+
+    def eval(self):
+        print('type: ' + type(self).__name__)
+        self.add_ast_element('type: ' + type(self).__name__)
 
     @staticmethod
     def add_result(value):
@@ -41,6 +46,7 @@ class Number(BaseASTNode):
     def eval(self):
         return int(self.value)
 
+
 class MinusExpression(BaseASTNode):
     def __init__(self, value, symbol_table):
         self.value = value
@@ -54,12 +60,16 @@ class MinusExpression(BaseASTNode):
             raise ValueError('Se esperaba un Identificador o un numero entero')
         return -value
 
+
 class String(BaseASTNode):
     def __init__(self, value):
         self.value = value
 
     def eval(self):
         return self.value
+
+    def print(self):
+        return self.value.replace('"', '')
 
 
 class Identifier(BaseASTNode):
@@ -73,6 +83,9 @@ class Identifier(BaseASTNode):
         return self
 
     def get_name(self):
+        return self.name
+
+    def print(self):
         return self.name
 
 
@@ -95,7 +108,7 @@ class BinaryOp():
             left_val = left_eval
 
         if Utils.is_id(right_eval):
-            right_val = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
+            right_val = self.symbol_table.get_symbol(right_eval.get_name()).get_value()
         elif Utils.is_string(right_eval):
             BaseASTNode.add_result('Error de tipos')
             raise ValueError('Error de tipos')
@@ -110,12 +123,18 @@ class Add(BinaryOp, BaseASTNode):
         left_val, right_val = self.get_values()
         return int(left_val) + int(right_val)
 
+    def print(self):
+        return self.eval()
+
 
 class Sub(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
         return int(left_val) - int(right_val)
+
+    def print(self):
+        return self.eval()
 
 
 class Mul(BinaryOp, BaseASTNode):
@@ -124,12 +143,18 @@ class Mul(BinaryOp, BaseASTNode):
         left_val, right_val = self.get_values()
         return int(left_val) * int(right_val)
 
+    def print(self):
+        return self.eval()
+
 
 class Div(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
         return int(left_val) / int(right_val)
+
+    def print(self):
+        return self.eval()
 
 
 class Bigger(BinaryOp, BaseASTNode):
@@ -190,9 +215,6 @@ class Assignation(BinaryOp, BaseASTNode):
         if Utils.is_id(right_eval):
             right_value = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
             td_var_right = self.symbol_table.get_symbol(right_eval.getstr()).get_type()
-        # elif Utils.is_num(right_eval):
-        #     right_value = right_eval.getstr()
-        #     td_var_right = 'int'
         elif Utils.is_string(right_eval):
             right_value = right_eval
             td_var_right = 'string'
@@ -301,15 +323,32 @@ class Print(BaseASTNode):
         self.symbol_table = symbol_table
 
     def eval(self):
-        value = self.value.eval()
-        if Utils.is_id(value):
-            value = self.symbol_table.get_symbol(value.get_name())
-        elif Utils.is_string(value):
-            value = value
+        values_list = []
+        # Creo una lista con todos los elementos que se deben imprimir
+        for elem in self.value.children:
+            values_list.append(elem)
+        values_list_without_variables = []
+        # Creo otra lista a la cual voy a copiar los valores finales a imprimir
+        for elem in values_list:
+            if Utils.is_id(elem):
+                value = self.symbol_table.get_symbol(elem.get_name()).get_value()
+                values_list_without_variables.append(str(value))
+            else:
+                values_list_without_variables.append(str(elem.print()))
+        print(''.join(values_list_without_variables))
 
-        BaseASTNode.add_result(value.get_value())
-        print(value.get_value())
 
+class PrintParams(BaseASTNode):
+    def __init__(self, first_child, symbol_table):
+        self.symbol_table = symbol_table
+        self.children = [first_child]
+
+    def add_child(self, child):
+        self.children.append(child)
+
+    def eval(self):
+        for i in self.children:
+            i.eval()
 
 class ForLoop(BaseASTNode):
     def __init__(self, id, for_list, statement_list, symbol_table):
@@ -336,7 +375,6 @@ class ForLoop(BaseASTNode):
                 self.symbol_table.set_symbol_value(self.id, step_value)
                 self.statement_list.eval()
                 step_value -= 1
-        pass
 
 
 class ForList(BaseASTNode):

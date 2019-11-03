@@ -20,7 +20,12 @@ statement
     | VAR ID COLON INT SEMI_COLON
     | VAR ID COLON STRING SEMI_COLON
     | ID EQUALS expr SEMI_COLON
-    | PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON
+    | PRINT OPEN_PARENS print_expr_list CLOSE_PARENS SEMI_COLON
+    ;
+
+print_expr_list
+    : print_expr_list WILDCARD expr
+    | WILDCARD expr
     ;
 
 for_list
@@ -92,13 +97,15 @@ PLUS:                           '+';
 MINUS:                          '-';
 MUL:                            '*';
 DIV:                            '/';
+WILDCARD:                        '->';
+COMMA:                          ',';
 
 NUMBER_TYPE
     :  [0-9] [0-9]*
     ;
 
 STRING_TYPE
-    :   '"' ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | ' ')* '"'
+    :   '"' . ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_' | ' ' | '=' | '.' | ':' | ';' | ',')* . '"'
     ;
 
 ID

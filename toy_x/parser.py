@@ -2,14 +2,14 @@ from sly import Parser
 from toy_x.lexer import ToyLexer
 from toy_x.symbolTable import SymbolTable
 from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
-                       Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
+                       Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse, PrintParams,
                        Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError
                        )
 
 
 class ToyParser(Parser):
     tokens = ToyLexer.tokens
-    debugfile = 'parser.out'
+    #debugfile = 'parser.out'
     start = 'program'
 
     # En la medida que se profundiza en la declaracion de la precedencia, los Tokens van adquiriendo
@@ -31,6 +31,7 @@ class ToyParser(Parser):
     @_('BEGIN statement_list END')
     def program(self, p):
         # p is a list of the pieces matched by the right hand side of the rule
+        # print("Luego de crear el scope y habiendolo destruido")
         return p.statement_list
 
     @_('BEGIN empty END')
@@ -45,6 +46,9 @@ class ToyParser(Parser):
     def statement_list(self, p):
         p.statement_list.add_child(p.statement)
         return p.statement_list
+
+
+
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
@@ -62,7 +66,7 @@ class ToyParser(Parser):
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
     def statement(self, p):
-        return IfElse(p[2], p[5], p[9])
+        return IfElse(p.rel, p.statement_list0, p.statement_list1)
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN error END')
     def statement(self, p):
@@ -124,9 +128,18 @@ class ToyParser(Parser):
         self.print_error("Error de sintaxis en statement ASSIGN. Expresion erronea", p)
         return GrammarError()
 
-    @_('PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
+    @_('PRINT OPEN_PARENS print_expr_list CLOSE_PARENS SEMI_COLON')
     def statement(self, p):
-        return Print(p.expr, self.symbol_table)
+        return Print(p.print_expr_list, self.symbol_table)
+
+    @_('WILDCARD expr')
+    def print_expr_list(self, p):
+        return PrintParams(p.expr, self.symbol_table)
+
+    @_('print_expr_list WILDCARD expr')
+    def print_expr_list(self, p):
+        p.print_expr_list.add_child(p.expr)
+        return p.print_expr_list
 
     @_('PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
     def statement(self, p):
