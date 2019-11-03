@@ -1,5 +1,5 @@
-from rply import Token
-
+import numbers
+import decimal
 
 class BaseASTNode:
     # Esta lista representa el resultado final del interprete, que se debe mostrar en pantalla
@@ -34,10 +34,11 @@ class Number(BaseASTNode):
         self.value = value
 
     def eval(self):
-        if Utils.is_num(self.value):
-            return int(self.value.getstr())
-        else:
-            raise ValueError('Error de tipo numerico')
+        return int(self.value)
+        # if Utils.is_num(self.value):
+        #     return int(self.value.getstr())
+        # else:
+        #     raise ValueError('Error de tipo numerico')
 
 class MinusExpression(BaseASTNode):
     def __init__(self, value, symbol_table):
@@ -47,8 +48,8 @@ class MinusExpression(BaseASTNode):
     def eval(self):
         value = self.value.eval()
         if Utils.is_id(value):
-            value = self.symbol_table.get_symbol(value.getstr()).get_value()
-        elif not isinstance(value, int):
+            value = self.symbol_table.get_symbol(value.get_name()).get_value()
+        elif not isinstance(value, numbers.Number):
             raise ValueError('Se esperaba un Identificador o un numero entero')
         return -value
 
@@ -68,6 +69,9 @@ class Identifier(BaseASTNode):
     def eval(self):
         # Debo chequear que el mismo se encuentre definido
         # symbol = self.symbol_table.get_symbol(self.name).get_value()
+        return self
+
+    def get_name(self):
         return self.name
 
 
@@ -83,10 +87,10 @@ class BinaryOp():
         left_val = None
         right_val = None
         if Utils.is_id(left_eval):
-            left_val = self.symbol_table.get_symbol(left_eval.getstr()).get_value()
+            left_val = self.symbol_table.get_symbol(left_eval.get_name()).get_value()
         elif Utils.is_string(left_eval):
             raise ValueError('Error de tipos')
-        elif isinstance(left_eval, int):
+        elif isinstance(left_eval, numbers.Number):
             left_val = left_eval
 
         if Utils.is_id(right_eval):
@@ -94,7 +98,7 @@ class BinaryOp():
         elif Utils.is_string(right_eval):
             BaseASTNode.add_result('Error de tipos')
             raise ValueError('Error de tipos')
-        elif isinstance(right_eval, int):
+        elif isinstance(right_eval, numbers.Number):
             right_val = right_eval
         return left_val, right_val
 
@@ -179,25 +183,25 @@ class Assignation(BinaryOp, BaseASTNode):
 
         # Debo realizar el control de tipos de datos, es decir el valor de la expresion debe
         # corresponderse con el tipo de datos definido para el variable
-        td_var_left = self.symbol_table.get_symbol(self.left.getstr()).get_type()
+        td_var_left = self.symbol_table.get_symbol(self.left).get_type()
         td_var_right = None
 
         if Utils.is_id(right_eval):
             right_value = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
             td_var_right = self.symbol_table.get_symbol(right_eval.getstr()).get_type()
-        elif Utils.is_num(right_eval):
-            right_value = right_eval.getstr()
-            td_var_right = 'int'
+        # elif Utils.is_num(right_eval):
+        #     right_value = right_eval.getstr()
+        #     td_var_right = 'int'
         elif Utils.is_string(right_eval):
-            right_value = right_eval.getstr()
+            right_value = right_eval
             td_var_right = 'string'
-        elif isinstance(right_eval, int):
+        elif isinstance(right_eval, numbers.Number):
             right_value = right_eval
             td_var_right = 'int'
 
         # Justo antes de setear el valor chequeo que la expresion sea del tipo esperado
         if td_var_left == td_var_right:
-            self.symbol_table.set_symbol_value(self.left.getstr(), right_value)
+            self.symbol_table.set_symbol_value(self.left, right_value)
         else:
             BaseASTNode.add_result(
                 'Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
@@ -208,8 +212,8 @@ class Assignation(BinaryOp, BaseASTNode):
 class VarDec(BaseASTNode):
     def __init__(self, token_name, token_type, symbol_table):
         # Obtengo el valor de cada Token antes de ser procesado
-        self.name = token_name.getstr()
-        self.type = token_type.getstr()
+        self.name = token_name
+        self.type = token_type
         self.symbol_table = symbol_table
         # No es factible definir un Token como indice en un diccionario, a esta altura
         # debo trabajar con los valores directamente
@@ -298,12 +302,12 @@ class Print(BaseASTNode):
     def eval(self):
         value = self.value.eval()
         if Utils.is_id(value):
-            value = self.symbol_table.get_symbol(value.getstr()).get_value()
+            value = self.symbol_table.get_symbol(value.get_name())
         elif Utils.is_string(value):
-            value = value.getstr()
+            value = value
 
-        BaseASTNode.add_result(value)
-        print(value)
+        BaseASTNode.add_result(value.get_value())
+        print(value.get_value())
 
 
 class ForLoop(BaseASTNode):
@@ -318,17 +322,17 @@ class ForLoop(BaseASTNode):
         final_value = self.for_list.final_value.eval()
         orden = self.for_list.orden
 
-        self.symbol_table.create_symbol(self.id.getstr(), 'int', 'not_izda')
+        self.symbol_table.create_symbol(self.id, 'int', 'not_izda')
 
         step_value = initial_value
         if Utils.is_orden_to(orden):
             while step_value <= final_value:
-                self.symbol_table.set_symbol_value(self.id.getstr(), step_value)
+                self.symbol_table.set_symbol_value(self.id, step_value)
                 self.statement_list.eval()
                 step_value += 1
         else:
             while step_value >= final_value:
-                self.symbol_table.set_symbol_value(self.id.getstr(), step_value)
+                self.symbol_table.set_symbol_value(self.id, step_value)
                 self.statement_list.eval()
                 step_value -= 1
         pass
@@ -350,45 +354,35 @@ class Utils:
 
     @staticmethod
     def is_id(value):
-        if type(value) is Token:
-            tok = value.gettokentype()
-            if tok == 'ID':
-                return True
-            else:
-                return False
+        if type(value) is Identifier:
+            return True
+        else:
+            return False
 
     @staticmethod
     def is_num(value):
-        if type(value) is Token:
-            tok = value.gettokentype()
-            if tok == 'NUMBER_TYPE':
-                return True
-            else:
-                return False
+        if isinstance(value, numbers.Number):
+            return True
+        else:
+            return False
 
     @staticmethod
     def is_string(value):
-        if type(value) is Token:
-            tok = value.gettokentype()
-            if tok == 'STRING_TYPE':
-                return True
-            else:
-                return False
+        if not isinstance(value, numbers.Number):
+            return True
+        else:
+            return False
 
     @staticmethod
     def is_orden_to(value):
-        if type(value) is Token:
-            tok = value.gettokentype()
-            if tok == 'TO':
-                return True
-            else:
-                return False
+        if value == 'to':
+            return True
+        else:
+            return False
 
     @staticmethod
     def is_orden_downto(value):
-        if type(value) is Token:
-            tok = value.gettokentype()
-            if tok == 'DOWNTO':
-                return True
-            else:
-                return False
+        if value == 'downto':
+            return True
+        else:
+            return False

@@ -17,7 +17,7 @@ class SymbolTable():
         heap = self.symbols.get(symbol)
         # Si no existe Pila, la creo
         if heap:
-            value =  heap.desapilar()
+            value = heap.desapilar()
             heap.apilar(value)
             return value
         else:

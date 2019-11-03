@@ -1,4 +1,5 @@
-from rply import ParserGenerator
+from sly import Parser
+from toy_x.lexer import ToyLexer
 from toy_x.symbolTable import SymbolTable
 from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                        Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse,
@@ -6,184 +7,170 @@ from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, S
                        )
 
 
-class Parser():
+class ToyParser(Parser):
+    tokens = ToyLexer.tokens
+    # debugfile = 'parser.out'
+    start = 'program'
+
+    precedence = (
+        ('left', PLUS, MINUS),
+        ('left', MUL, DIV),
+        ("right", UMINUS),
+    )
+
     def __init__(self):
-        self.pg = ParserGenerator(
-            # A list of all token names, accepted by the parser.
-            ['NUMBER_TYPE', 'STRING_TYPE', 'OPEN_PARENS', 'CLOSE_PARENS', 'COLON',
-             'INT', 'STRING', 'BEGIN', 'END', 'PLUS', 'IF', 'WHILE', 'DO',
-             'BIGGER', 'SEMI_COLON', 'EQUALS', 'ID', 'VAR', 'ELSE', 'PRINT',
-             'MINUS', 'MUL', 'DIV', 'DIFF', 'EQUAL', 'SMALLER','FOR','TO', 'DOWNTO',
-             ],
-            # A list of precedence rules with ascending precedence, to
-            # disambiguate ambiguous production rules.
-            precedence=[
-                ('left', ['PLUS', 'MINUS']),
-                ('left', ['MUL', 'DIV']),
-                ("right", ["UMINUS"]),
-            ]
-        )
         self.symbol_table = SymbolTable()
 
     def get_names(self):
         return self.symbol_table
 
-    def parse(self):
-        @self.pg.production('program : BEGIN statement_list END')
-        def program(p):
-            # p is a list of the pieces matched by the right hand side of the rule
-            return p[1]
+    @_('BEGIN statement_list END')
+    def program(self, p):
+        # p is a list of the pieces matched by the right hand side of the rule
+        return p.statement_list
 
-        @self.pg.production('program : BEGIN empty END')
-        def program_empty(p):
-            return Empty()
+    @_('BEGIN empty END')
+    def program(self, p):
+        return Empty()
 
-        @self.pg.production('program : empty')
-        def program_empty(p):
-            return Empty()
+    @_('statement')
+    def statement_list(self, p):
+        return Statements(p.statement)
 
-        @self.pg.production('statement_list : statement')
-        def statement_list_one(p):
-            return Statements(p[0])
+    @_('statement_list statement')
+    def statement_list(self, p):
+        p.statement_list.add_child(p.statement)
+        return p.statement_list
 
-        @self.pg.production('statement_list : statement_list statement')
-        def statement_list_rest(p):
-            p[0].add_child(p[1])
-            return p[0]
+    @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
+    def statement(self, p):
+        return If(p.rel, p.statement_list)
 
-        @self.pg.production('statement : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
-        def statement_if(p):
-            return If(p[2], p[5])
+    @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
+    def statement(self, p):
+        return IfElse(p[2], p[5], p[9])
 
-        @self.pg.production(
-            'statement : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
-        def statement_if(p):
-            return IfElse(p[2], p[5], p[9])
+    @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
+    def statement(self, p):
+        return While(p.rel, p.statement_list)
 
-        @self.pg.production('statement : WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
-        def statement_if(p):
-            return While(p[2], p[5])
+    # @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
+    # def statement(self, p):
+    #     print("Error de sintaxis en statement WHILE. Expresion erronea")
 
-        @self.pg.production('statement : WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
-        def statement_if(p):
-            print("Error de sintaxis en statement WHILE. Expresion erronea")
+    @_('DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS')
+    def statement(self, p):
+        return DoWhile(p.rel, p.statement_list)
 
-        @self.pg.production('statement : DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS')
-        def statement_if(p):
-            return DoWhile(p[6], p[2])
+    # @_('DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS')
+    # def statement(self, p):
+    #     print("Error de sintaxis en statement DO-WHILE. Expresion erronea")
 
-        @self.pg.production('statement : DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS')
-        def statement_if(p):
-            print("Error de sintaxis en statement DO-WHILE. Expresion erronea")
+    @_('VAR ID COLON INT SEMI_COLON')
+    def statement(self, p):
+        return VarDec(p.ID, p.INT, self.symbol_table)
 
-        @self.pg.production('statement : VAR ID COLON INT SEMI_COLON')
-        @self.pg.production('statement : VAR ID COLON STRING SEMI_COLON')
-        def var_dec(p):
-            return VarDec(p[1], p[3], self.symbol_table)
+    @_('VAR ID COLON STRING SEMI_COLON')
+    def statement(self, p):
+        return VarDec(p.ID, p.STRING, self.symbol_table)
 
-        @self.pg.production('statement : ID EQUALS expr SEMI_COLON')
-        def assign(p):
-            left = p[0]
-            right = p[2]
-            return Assignation(left, right, self.symbol_table)
+    @_('ID EQUALS expr SEMI_COLON')
+    def statement(self, p):
+        return Assignation(p.ID, p.expr, self.symbol_table)
 
-        @self.pg.production('statement : ID EQUALS error SEMI_COLON')
-        def assign(p):
-            print("Error de sintaxis en statement ASSIGN. Expresion erronea")
+    # @_('ID EQUALS error SEMI_COLON')
+    # def statement(self, p):
+    #     print("Error de sintaxis en statement ASSIGN. Expresion erronea")
 
-        @self.pg.production('statement : PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
-        def print_func(p):
-            value = p[2]
-            return Print(value, self.symbol_table)
+    @_('PRINT OPEN_PARENS expr CLOSE_PARENS SEMI_COLON')
+    def statement(self, p):
+        return Print(p.expr, self.symbol_table)
 
-        @self.pg.production('statement : PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
-        def print_func(p):
-            print("Error de sintaxis en statement PRINT. Expresion erronea")
+    # @_('PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
+    # def statement(self, p):
+    #     print("Error de sintaxis en statement PRINT. Expresion erronea")
 
-        @self.pg.production('statement : FOR ID EQUALS for_list DO BEGIN statement_list END')
-        def statement_for(p):
-            return ForLoop(p[1], p[3], p[6], self.symbol_table)
+    @_('FOR ID EQUALS for_list DO BEGIN statement_list END')
+    def statement(self, p):
+        return ForLoop(p.ID, p.for_list, p.statement_list, self.symbol_table)
 
-        @self.pg.production('for_list : initial_value OPEN_PARENS TO CLOSE_PARENS final_value')
-        @self.pg.production('for_list : initial_value OPEN_PARENS DOWNTO CLOSE_PARENS final_value')
-        def for_list(p):
-            return ForList(p[0], p[2], p[4])
+    @_('initial_value OPEN_PARENS TO CLOSE_PARENS final_value')
+    def for_list(self, p):
+        return ForList(p.initial_value, p.TO, p.final_value)
 
-        @self.pg.production('initial_value : expr')
-        def initial_value(p):
-            return p[0]
+    @_('initial_value OPEN_PARENS DOWNTO CLOSE_PARENS final_value')
+    def for_list(self, p):
+        return ForList(p.initial_value, p.DOWNTO, p.final_value)
 
-        @self.pg.production('final_value : expr')
-        def final_value(p):
-            return p[0]
+    @_('expr')
+    def initial_value(self, p):
+        return p.expr
 
-        @self.pg.production('expr : MINUS expr', precedence='UMINUS')
-        def negative_expr(p):
-            return MinusExpression(p[1], self.symbol_table)
+    @_('expr')
+    def final_value(self, p):
+        return p.expr
 
-        @self.pg.production('rel : expr BIGGER expr')
-        @self.pg.production('rel : expr SMALLER expr')
-        @self.pg.production('rel : expr EQUAL expr')
-        @self.pg.production('rel : expr DIFF expr')
-        def rel(p):
-            left = p[0]
-            right = p[2]
-            if p[1].gettokentype() == 'BIGGER':
-                return Bigger(left, right, self.symbol_table)
-            if p[1].gettokentype() == 'SMALLER':
-                return Smaller(left, right, self.symbol_table)
-            if p[1].gettokentype() == 'EQUAL':
-                return Equal(left, right, self.symbol_table)
-            if p[1].gettokentype() == 'DIFF':
-                return Different(left, right, self.symbol_table)
-            else:
-                raise AssertionError('Error, no es posible este valor en una operacion rel!')
+    @_('MINUS expr %prec UMINUS')
+    def expr(self, p):
+        return MinusExpression(p.expr, self.symbol_table)
 
-        @self.pg.production('expr : expr PLUS expr')
-        @self.pg.production('expr : expr MINUS expr')
-        @self.pg.production('expr : expr MUL expr')
-        @self.pg.production('expr : expr DIV expr')
-        def expr_binop(p):
-            left = p[0]
-            right = p[2]
-            if p[1].gettokentype() == 'PLUS':
-                return Add(left, right, self.symbol_table)
-            if p[1].gettokentype() == 'MINUS':
-                return Sub(left, right, self.symbol_table)
-            if p[1].gettokentype() == 'MUL':
-                return Mul(left, right, self.symbol_table)
-            if p[1].gettokentype() == 'DIV':
-                return Div(left, right, self.symbol_table)
-            else:
-                raise AssertionError('Oops, this should not be possible!')
+    @_('expr BIGGER expr')
+    def rel(self, p):
+        return Bigger(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.production('expr : OPEN_PARENS expr CLOSE_PARENS')
-        def expr_parens(p):
-            return p[1]
+    @_('expr SMALLER expr')
+    def rel(self, p):
+        return Smaller(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.production('expr : factor')
-        def term_factor(p):
-            return p[0]
+    @_('expr EQUAL expr')
+    def rel(self, p):
+        return Equal(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.production('factor : NUMBER_TYPE')
-        def factor_number_type(p):
-            return Number(p[0])
+    @_('expr DIFF expr')
+    def rel(self, p):
+        return Different(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.production('factor : STRING_TYPE')
-        def factor_string_type(p):
-            return String(p[0])
+    @_('expr PLUS expr')
+    def expr(self, p):
+        return Add(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.production('factor : ID')
-        def identifier(p):
-            return Identifier(p[0], self.symbol_table)
+    @_('expr MINUS expr')
+    def expr(self, p):
+        return Sub(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.error
-        def error_handle(token):
-            raise ValueError(token)
+    @_('expr MUL expr')
+    def expr(self, p):
+        return Mul(p.expr0, p.expr1, self.symbol_table)
 
-        @self.pg.production('empty :')
-        def p_empty(p):
-            pass
+    @_('expr DIV expr')
+    def expr(self, p):
+        return Div(p.expr0, p.expr1, self.symbol_table)
 
-    def get_parser(self):
-        return self.pg.build()
+    @_('OPEN_PARENS expr CLOSE_PARENS')
+    def expr(self, p):
+        return p.expr
+
+    @_('factor')
+    def expr(self, p):
+        return p.factor
+
+    @_('NUMBER_TYPE')
+    def factor(self, p):
+        return Number(p.NUMBER_TYPE)
+
+    @_('STRING_TYPE')
+    def factor(self, p):
+        return String(p.STRING_TYPE)
+
+    @_('ID')
+    def factor(self, p):
+        idr = Identifier(p.ID, self.symbol_table)
+        return idr
+
+    # @_('error')
+    # def factor(self, p):
+    #     print("Syntax error in factor. Bad expression")
+
+    @_('')
+    def empty(self, p):
+        return Empty()
