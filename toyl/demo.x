@@ -7,7 +7,6 @@ begin
     var iCounter : int;
     iCounter := 1;
 
-    print(->"VariableiCoun==");
     print(->iCounter);
 
     print(->"Imprimiendo una matriz");

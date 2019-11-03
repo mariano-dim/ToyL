@@ -9,7 +9,7 @@ from toyl.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, St
 
 class ToyParser(Parser):
     tokens = ToyLexer.tokens
-    #debugfile = 'parser.out'
+    # debugfile = 'parser.out'
     start = 'program'
 
     # En la medida que se profundiza en la declaracion de la precedencia, los Tokens van adquiriendo
@@ -46,9 +46,6 @@ class ToyParser(Parser):
     def statement_list(self, p):
         p.statement_list.add_child(p.statement)
         return p.statement_list
-
-
-
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
@@ -132,6 +129,11 @@ class ToyParser(Parser):
     def statement(self, p):
         return Print(p.print_expr_list, self.symbol_table)
 
+    @_('PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
+    def statement(self, p):
+        self.print_error("Error de sintaxis en statement PRINT. Expresion erronea ", p)
+        return GrammarError()
+
     @_('WILDCARD expr')
     def print_expr_list(self, p):
         return PrintParams(p.expr, self.symbol_table)
@@ -140,11 +142,6 @@ class ToyParser(Parser):
     def print_expr_list(self, p):
         p.print_expr_list.add_child(p.expr)
         return p.print_expr_list
-
-    @_('PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement PRINT. Expresion erronea ", p)
-        return GrammarError()
 
     @_('FOR ID EQUALS for_list DO BEGIN statement_list END')
     def statement(self, p):
@@ -180,131 +177,42 @@ class ToyParser(Parser):
     def expr(self, p):
         return MinusExpression(p.expr, self.symbol_table)
 
-    @_('MINUS error %prec UMINUS')
-    def expr(self, p):
-        self.print_error("Error de sintaxis en expression MINUS, en rangos. Expresion erronea", p)
-        return GrammarError()
-
     @_('expr BIGGER expr')
     def rel(self, p):
         return Bigger(p.expr0, p.expr1, self.symbol_table)
 
-    @_('error BIGGER expr')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession BIGGER, lado izquierdo. Expresion erronea", p)
-        return GrammarError()
-
-    @_('expr BIGGER error')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession BIGGER, lado derecho. Expresion erronea", p)
-        return GrammarError()
-
     @_('expr SMALLER expr')
     def rel(self, p):
         return Smaller(p.expr0, p.expr1, self.symbol_table)
-
-    @_('error SMALLER expr')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession SMALLER, lado izquierdo. Expresion erronea", p)
-        return GrammarError()
-
-    @_('expr SMALLER error')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession SMALLER, lado derecho. Expresion erronea", p)
-        return GrammarError()
-
-    @_('expr EQUAL error')
-    def rel(self, p):
-        return Equal(p.expr0, p.expr1, self.symbol_table)
 
     @_('expr EQUAL expr')
     def rel(self, p):
         self.print_error("Error de sintaxis en expession EQUAL, lado izquierdo. Expresion erronea", p)
         return GrammarError()
 
-    @_('error EQUAL expr')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession EQUAL, lado derecho. Expresion erronea", p)
-        return GrammarError()
-
     @_('expr DIFF expr')
     def rel(self, p):
         return Different(p.expr0, p.expr1, self.symbol_table)
-
-    @_('error DIFF expr')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession DIFF, lado izquierdo. Expresion erronea", p)
-        return GrammarError()
-
-    @_('expr DIFF error')
-    def rel(self, p):
-        self.print_error("Error de sintaxis en expession DIFF, lado derecho. Expresion erronea", p)
-        return GrammarError()
 
     @_('expr PLUS expr')
     def expr(self, p):
         return Add(p.expr0, p.expr1, self.symbol_table)
 
-    # @_('error PLUS expr')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession PLUS, lado izquierdo. Expresion erronea", p)
-    #     return GrammarError()
-    #
-    # @_('expr PLUS error')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession PLUS, lado derecho. Expresion erronea", p)
-    #     return GrammarError()
-
     @_('expr MINUS expr')
     def expr(self, p):
         return Sub(p.expr0, p.expr1, self.symbol_table)
-
-    # @_('error MINUS expr')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession MINUS, lado izquierdo. Expresion erronea", p)
-    #     return GrammarError()
-    #
-    # @_('expr MINUS error')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession MINUS, lado derecho. Expresion erronea", p)
-    #     return GrammarError()
 
     @_('expr MUL expr')
     def expr(self, p):
         return Mul(p.expr0, p.expr1, self.symbol_table)
 
-    # @_('error MUL expr')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession MUL, lado izquierdo. Expresion erronea", p)
-    #     return GrammarError()
-    #
-    # @_('expr MUL error')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession MUL, lado derecho. Expresion erronea", p)
-    #     return GrammarError()
-
     @_('expr DIV expr')
     def expr(self, p):
         return Div(p.expr0, p.expr1, self.symbol_table)
 
-    # @_('error DIV expr')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession DIV, lado izquierdo. Expresion erronea", p)
-    #     return GrammarError()
-    #
-    # @_('expr DIV error')
-    # def expr(self, p):
-    #     self.print_error("Error de sintaxis en expession DIV, lado derecho. Expresion erronea", p)
-    #     return GrammarError()
-
     @_('OPEN_PARENS expr CLOSE_PARENS')
     def expr(self, p):
         return p.expr
-
-    @_('OPEN_PARENS error CLOSE_PARENS')
-    def expr(self, p):
-        self.print_error("Error de sintaxis en expession entre parentesis. Expresion erronea", p)
-        return GrammarError()
 
     @_('factor')
     def expr(self, p):

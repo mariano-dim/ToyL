@@ -42,7 +42,6 @@ def main():
     except:
         print('[ERROR] No se puede encontrar el archivo "' + fileName + '"')
 
-
     # Create lexer
     print("Tokenizando...")
     lexer = ToyLexer()
@@ -58,7 +57,7 @@ def main():
     # ast es el arbol AST expresado a traves de un objeto principal Statements
     ast = parser.parse(lexer.tokenize(content))
 
-    #ast.print()
+    # ast.print()
     ast.eval()
 
     # Simbol table

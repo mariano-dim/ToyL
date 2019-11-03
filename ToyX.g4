@@ -13,15 +13,34 @@ statement_list
 
 statement
     : IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END
+    | IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN error END
+    | IF OPEN_PARENS rel CLOSE_PARENS BEGIN error END ELSE BEGIN statement_list END
+    | IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END
     | IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
+    | IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END
+    | IF OPEN_PARENS rel CLOSE_PARENS BEGIN error END
     | WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END
-    | FOR ID EQUALS for_list DO BEGIN statement_list END
+    | WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END
+    | WHILE OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END
+    | DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS
+    | DO BEGIN statement_list END WHILE OPEN_PARENS error CLOSE_PARENS
     | DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS
+    | FOR ID EQUALS for_list DO BEGIN statement_list END
+    | FOR ID EQUALS error DO BEGIN statement_list END
+    | FOR ID EQUALS for_list DO BEGIN error END
     | VAR ID COLON INT SEMI_COLON
     | VAR ID COLON STRING SEMI_COLON
     | ID EQUALS expr SEMI_COLON
+    | ID EQUALS error SEMI_COLON
     | PRINT OPEN_PARENS print_expr_list CLOSE_PARENS SEMI_COLON
+    | PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON
     ;
+
+
+error
+    :
+    ;
+
 
 print_expr_list
     : print_expr_list WILDCARD expr

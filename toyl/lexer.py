@@ -2,7 +2,6 @@ from sly import Lexer
 
 
 class ToyLexer(Lexer):
-
     tokens = {NUMBER_TYPE, STRING_TYPE, OPEN_PARENS, CLOSE_PARENS, COLON,
               INT, STRING, BEGIN, END, PLUS, IF, WHILE, DO, WILDCARD,
               BIGGER, SEMI_COLON, EQUALS, ID, VAR, ELSE, PRINT,

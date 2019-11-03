@@ -39,7 +39,8 @@ class SymbolTable():
                     raise ValueError(
                         "set_symbol_value. ID {} no posee su estructura de datos interna con datos".format(symbol))
             else:
-                raise ValueError("set_symbol_value. ID {} no posee su estructura de datos interna asociada".format(symbol))
+                raise ValueError(
+                    "set_symbol_value. ID {} no posee su estructura de datos interna asociada".format(symbol))
         else:
             raise ValueError("set_symbol_value. ID {} no fue declarado".format(symbol))
 

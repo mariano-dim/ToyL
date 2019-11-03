@@ -350,6 +350,7 @@ class PrintParams(BaseASTNode):
         for i in self.children:
             i.eval()
 
+
 class ForLoop(BaseASTNode):
     def __init__(self, id, for_list, statement_list, symbol_table):
         self.id = id
