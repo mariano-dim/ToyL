@@ -1,4 +1,4 @@
-from toy_x.utils.pila import Pila
+from toyl.utils.pila import Pila
 
 
 class SymbolsWrapper:

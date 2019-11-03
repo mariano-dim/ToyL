@@ -1,10 +1,10 @@
 from sly import Parser
-from toy_x.lexer import ToyLexer
-from toy_x.symbolTable import SymbolTable
-from toy_x.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
-                       Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse, PrintParams,
-                       Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError
-                       )
+from toyl.lexer import ToyLexer
+from toyl.symbolTable import SymbolTable
+from toyl.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
+                      Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse, PrintParams,
+                      Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError
+                      )
 
 
 class ToyParser(Parser):

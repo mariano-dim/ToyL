@@ -10,9 +10,9 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox,
                              QVBoxLayout, QWidget, QPlainTextEdit)
 
 import sys
-from toy_x.lexer import ToyLexer
-from toy_x.parser import ToyParser
-from toy_x.ast import BaseASTNode
+from toyl.lexer import ToyLexer
+from toyl.parser import ToyParser
+from toyl.ast import BaseASTNode
 
 
 class WidgetGallery(QDialog):

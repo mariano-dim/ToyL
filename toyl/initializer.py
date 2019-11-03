@@ -10,9 +10,9 @@
 import os
 import sys
 from builtins import print
-from toy_x.lexer import Lexer
-from toy_x.parser import Parser
-from toy_x.ast import BaseASTNode
+from toyl.lexer import ToyLexer
+from toyl.parser import ToyParser
+from toyl.ast import BaseASTNode
 
 
 def main():
@@ -42,35 +42,37 @@ def main():
     except:
         print('[ERROR] No se puede encontrar el archivo "' + fileName + '"')
 
+
     # Create lexer
+    print("Tokenizando...")
     lexer = ToyLexer()
-    tokens = lexer.lex(content)
+    # print(content)
+    lexer.startLexer()
 
-    for tok in tokens:
-        print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.gettokentype(),
-                                                          val=tok.getstr()))
-
-    # Create lexer again, because vars are in a bad state
-    lexer = Lexer().get_lexer()
-    tokens = lexer.lex(content)
-
+    # for tok in lexer.tokenize(content):
+    #     print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type,
+    #                                                       val=tok.value))
     # Create parser
-    pg = Parser()
-    pg.parse()
-    parser = pg.get_parser()
-    tokens = parser.parse(tokens).eval()
+    print("Parseando...")
+    parser = ToyParser()
+    # ast es el arbol AST expresado a traves de un objeto principal Statements
+    ast = parser.parse(lexer.tokenize(content))
 
-    names = pg.get_names().get_all_symbols()
-    print('Imprimiendo tabla de simbolos')
-    for sym in names.keys():
-        print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-        + pg.get_names().get_symbol(sym).get_type() )
-        #+ ' - ' + pg.get_names().get_symbol(sym).get_location() )
+    #ast.print()
+    ast.eval()
 
-    # Imprimiendo el resultado de la lista de resultados del programa
-    for op in BaseASTNode.get_result():
-        print(op)
+    # Simbol table
+    names = parser.get_names().get_all_symbols()
 
+    # print('Imprimiendo tabla de simbolos')
+    # for sym in names.keys():
+    #     print('Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
+    #     + parser.get_names().get_symbol(sym).get_type() )
+    #     #+ ' - ' + pg.get_names().get_symbol(sym).get_location() )
+    #
+    # # Imprimiendo el resultado de la lista de resultados del programa
+    # for op in BaseASTNode.get_result():
+    #     print(op)
 
 
 if __name__ == '__main__':

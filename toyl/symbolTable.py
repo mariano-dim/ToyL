@@ -1,5 +1,5 @@
-from toy_x.symbolsWrapper import SymbolsWrapper
-from toy_x.utils.pila import Pila
+from toyl.symbolsWrapper import SymbolsWrapper
+from toyl.utils.pila import Pila
 
 
 class SymbolTable():
