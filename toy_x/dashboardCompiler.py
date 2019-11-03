@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QComboBox,
                              QVBoxLayout, QWidget, QPlainTextEdit)
 
 import sys
-from toy_x.lexer import Lexer
-from toy_x.parser import Parser
+from toy_x.lexer import ToyLexer
+from toy_x.parser import ToyParser
 from toy_x.ast import BaseASTNode
 
 
@@ -153,27 +153,28 @@ class WidgetGallery(QDialog):
 
     @pyqtSlot()
     def on_clickSymbolsResults(self):
-        print('Interpreter button click')
+        print('Symbol table button click')
         self.textEditprocessedSourceCode.clear()
         # Limpio la variable resultado, ya que de tener un valor es de la ejecucion anterior
         BaseASTNode.clean_result()
         # Create lexer
-        lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
+        print("Tokenizando...")
+        lexer = ToyLexer()
+        print(self.textEditSourceCode.toPlainText())
+        lexer.startLexer()
         # Create parser
-        pg = Parser()
-        pg.parse()
-        parser = pg.get_parser()
-        parser.parse(tokens).eval()
+        print("Parseando...")
+        parser = ToyParser()
+        parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText())).eval()
 
-        names = pg.get_names().get_all_symbols()
+        names = parser.get_names().get_all_symbols()
         print('Imprimiendo tabla de simbolos')
         for sym in names.keys():
-            print('Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-                  + pg.get_names().get_symbol(sym).get_type())
+            print('Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
+                  + parser.get_names().get_symbol(sym).get_type())
             self.textEditprocessedSourceCode.appendPlainText(
-                'Simbolo : ' + str(sym) + ' = ' + str(pg.get_names().get_symbol(sym).get_value()) + ' - '
-                + pg.get_names().get_symbol(sym).get_type())
+                'Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
+                + parser.get_names().get_symbol(sym).get_type())
 
     @pyqtSlot()
     def on_clickCleanResults(self):
@@ -185,27 +186,28 @@ class WidgetGallery(QDialog):
         print('Tokenizer button click')
         self.textEditprocessedSourceCode.clear()
         # Create lexer
-        lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
+        print("Tokenizando...")
+        lexer = ToyLexer()
+        print(self.textEditSourceCode.toPlainText())
+        lexer.startLexer()
 
-        for tok in tokens:
-            print('{op: ' '<35}'.format(op=tok.gettokentype())
-                  + '{oy: ' '>5}'.format(oy=tok.getstr()))
-            self.textEditprocessedSourceCode.appendPlainText(
-                'TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.gettokentype(), val=tok.getstr()))
+        for tok in lexer.tokenize(self.textEditSourceCode.toPlainText()):
+            print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
+            self.textEditprocessedSourceCode.appendPlainText('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
 
     @pyqtSlot()
     def on_clickParser(self):
         print('Parser button click')
         self.textEditprocessedSourceCode.clear()
         # Create lexer
-        lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
-
+        print("Tokenizando...")
+        lexer = ToyLexer()
+        print(self.textEditSourceCode.toPlainText())
+        lexer.startLexer()
         # Create parser
-        pg = Parser()
-        pg.parse()
-        parser = pg.get_parser()
+        print("Parseando...")
+        parser = ToyParser()
+        parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText())).eval()
 
     @pyqtSlot()
     def on_clickInterpreter(self):
@@ -214,13 +216,14 @@ class WidgetGallery(QDialog):
         # Limpio la variable resultado, ya que de tener un valor es de la ejecucion anterior
         BaseASTNode.clean_result()
         # Create lexer
-        lexer = Lexer().get_lexer()
-        tokens = lexer.lex(self.textEditSourceCode.toPlainText())
+        print("Tokenizando...")
+        lexer = ToyLexer()
+        print(self.textEditSourceCode.toPlainText())
+        lexer.startLexer()
         # Create parser
-        pg = Parser()
-        pg.parse()
-        parser = pg.get_parser()
-        parser.parse(tokens).eval()
+        print("Parseando...")
+        parser = ToyParser()
+        parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText())).eval()
 
         # Imprimiendo el resultado de la lista de resultados del programa
         for op in BaseASTNode.get_result():
