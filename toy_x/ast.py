@@ -1,5 +1,4 @@
 import numbers
-import decimal
 
 class BaseASTNode:
     # Esta lista representa el resultado final del interprete, que se debe mostrar en pantalla
@@ -29,16 +28,18 @@ class Empty(BaseASTNode):
         return None
 
 
+class GrammarError(BaseASTNode):
+
+    def eval(self):
+        return None
+
+
 class Number(BaseASTNode):
     def __init__(self, value):
         self.value = value
 
     def eval(self):
         return int(self.value)
-        # if Utils.is_num(self.value):
-        #     return int(self.value.getstr())
-        # else:
-        #     raise ValueError('Error de tipo numerico')
 
 class MinusExpression(BaseASTNode):
     def __init__(self, value, symbol_table):

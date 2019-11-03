@@ -17,7 +17,7 @@ class ToyLexer(Lexer):
     ID = r'[a-zA-Z][a-zA-Z_0-9_]*'
 
     # Numero (Por ahora un entero muy especial)
-    NUMBER_TYPE = r'\d+'
+    NUMBER_TYPE = r'[0-9][0-9]*'
 
     # Cadena de texto
     STRING_TYPE = r'\".[a-zA-Z_0-9 ]*?\"'
@@ -37,7 +37,6 @@ class ToyLexer(Lexer):
     ID['begin'] = BEGIN
     ID['end'] = END
 
-
     PLUS = r'\+'
     MINUS = r'-'
     MUL = r'\*'
@@ -53,11 +52,24 @@ class ToyLexer(Lexer):
     SEMI_COLON = r'\;'
 
     # Extra action for newlines
+    @_(r'\n+')
     def ignore_newline(self, t):
         self.lineno += t.value.count('\n')
 
+    # Compute column.
+    #     input is the input text string
+    #     token is a token instance
+    def find_column(text, token):
+        last_cr = text.rfind('\n', 0, token.index)
+        if last_cr < 0:
+            last_cr = 0
+        column = (token.index - last_cr) + 1
+        return column
+
     def error(self, t):
         print("Illegal character '%s'" % t.value[0])
+        # Si encuentro un simbolo o caracter desconocido, imrpimo el error y sigo adelante
+        # salteando el caracter en cuestion
         self.index += 1
 
     def startLexer(self):

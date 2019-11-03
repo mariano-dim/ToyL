@@ -1,6 +1,7 @@
 begin
-    for e := 1 (to) 2 do
+    for e := 0 (to) 2 do
     begin
+
         for f := 1 (to) 2 do
         begin
             print(f);
@@ -9,18 +10,32 @@ begin
     end
 
     var s : int;
-    s := 1;
+    s := 1 + 1  ;
+
     if (s > 4)
     begin
+        print(s);
         var cadena : string;
         cadena := "hola mundo";
-        print(cadena);
+        print(cadena );
     end
+#    else
+#    begin
+#        print(s);
+#    end
 
     var minus : int;
     minus := -1;
     print(minus);
     minus := -minus ;
     print(minus);
+
+    s := 1;
+    do
+    begin
+        print(s);
+        s := s+1;
+    end
+    while (s < 5 )
 
 end
