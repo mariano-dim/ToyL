@@ -34,6 +34,10 @@ class ToyParser(Parser):
         # print("Luego de crear el scope y habiendolo destruido")
         return p.statement_list
 
+    # @_('')
+    # def program(self, p):
+    #     return Empty()
+
     @_('BEGIN empty END')
     def program(self, p):
         return Empty()

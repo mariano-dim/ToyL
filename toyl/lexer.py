@@ -19,8 +19,9 @@ class ToyLexer(Lexer):
     NUMBER_TYPE = r'[0-9][0-9]*'
 
     # Cadena de texto
-    STRING_TYPE = r'\".[a-zA-Z_0-9 _:,.;=]*?"'
-
+    #STRING_TYPE = r'\".[a-zA-Z_0-9 _:,.;=]*?"'
+    STRING_TYPE = r'"([^"\n]|(\\"))*"'
+    
     # Special cases
     ID['if'] = IF
     ID['else'] = ELSE
