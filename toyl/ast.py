@@ -247,8 +247,10 @@ class VarDec(BaseASTNode):
 
 
 class Statements(BaseASTNode):
-    def __init__(self, first_child):
+    def __init__(self, first_child, symbol_table):
         self.children = [first_child]
+        self.symbol_table = symbol_table
+        self.locals = None
 
     def add_child(self, child):
         self.children.append(child)
@@ -259,9 +261,10 @@ class Statements(BaseASTNode):
 
 
 class If(BaseASTNode):
-    def __init__(self, pred, block):
+    def __init__(self, pred, block, symbol_table):
         self.pred = pred
         self.block = block
+        self.symbol_table = symbol_table
 
     def eval(self):
         cond = self.pred.eval()
@@ -271,10 +274,11 @@ class If(BaseASTNode):
 
 
 class IfElse(BaseASTNode):
-    def __init__(self, pred, block1, block2):
+    def __init__(self, pred, block1, block2, symbol_table):
         self.pred = pred
         self.block1 = block1
         self.block2 = block2
+        self.symbol_table = symbol_table
 
     def eval(self):
         cond = self.pred.eval()
@@ -285,9 +289,11 @@ class IfElse(BaseASTNode):
 
 
 class While(BaseASTNode):
-    def __init__(self, cond, block):
+    def __init__(self, cond, block, symbol_table):
         self.cond = cond
         self.block = block
+        self.locals = None
+        self.symbol_table = symbol_table
 
     def eval(self):
         cond = self.cond.eval()
@@ -297,10 +303,12 @@ class While(BaseASTNode):
 
 
 class DoWhile(BaseASTNode):
-    def __init__(self, cond, block):
+    def __init__(self, cond, block, symbol_table):
         self.cond = cond
         self.block = block
         self.firt_time = True
+        self.locals = None
+        self.symbol_table = symbol_table
 
     def eval(self):
         if self.firt_time:
@@ -357,6 +365,7 @@ class ForLoop(BaseASTNode):
         self.for_list = for_list
         self.statement_list = statement_list
         self.symbol_table = symbol_table
+        self.locals = None
 
     def eval(self):
         initial_value = self.for_list.initial_value.eval()
@@ -387,6 +396,7 @@ class ForList(BaseASTNode):
 
     def eval(self):
         # Aca puedo chequear limites u semantica del orden
+        # Tambien se puede chequear el scope de las variables
         pass
 
 

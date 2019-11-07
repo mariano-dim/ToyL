@@ -11,7 +11,7 @@ begin
         P := 10 + e;
         while (Y>0)
         begin
-            print(->"Iniciando bloque intermedio " ->Y);
+            print(->"Iniciando bloque intermedio" ->Y);
             while(P>5)
             begin
                 print(->"Iniciando bloque mas profundo " ->Y ->P);

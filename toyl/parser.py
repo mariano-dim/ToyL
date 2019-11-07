@@ -44,7 +44,7 @@ class ToyParser(Parser):
 
     @_('statement')
     def statement_list(self, p):
-        return Statements(p.statement)
+        return Statements(p.statement, self.symbol_table)
 
     @_('statement_list statement')
     def statement_list(self, p):
@@ -53,7 +53,7 @@ class ToyParser(Parser):
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
-        return If(p.rel, p.statement_list)
+        return If(p.rel, p.statement_list, self.symbol_table)
 
     @_('IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
@@ -67,7 +67,7 @@ class ToyParser(Parser):
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
     def statement(self, p):
-        return IfElse(p.rel, p.statement_list0, p.statement_list1)
+        return IfElse(p.rel, p.statement_list0, p.statement_list1, self.symbol_table)
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN error END')
     def statement(self, p):
@@ -86,7 +86,7 @@ class ToyParser(Parser):
 
     @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
-        return While(p.rel, p.statement_list)
+        return While(p.rel, p.statement_list, self.symbol_table)
 
     @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
     def statement(self, p):
@@ -100,7 +100,7 @@ class ToyParser(Parser):
 
     @_('DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS')
     def statement(self, p):
-        return DoWhile(p.rel, p.statement_list)
+        return DoWhile(p.rel, p.statement_list, self.symbol_table)
 
     @_('DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS')
     def statement(self, p):
