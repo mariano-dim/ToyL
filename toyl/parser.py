@@ -3,7 +3,7 @@ from toyl.lexer import ToyLexer
 from toyl.symbolTable import SymbolTable
 from toyl.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                       Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse, PrintParams,
-                      Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError
+                      Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError, Exec, InitBlock,
                       )
 
 
@@ -24,6 +24,7 @@ class ToyParser(Parser):
 
     def __init__(self):
         self.symbol_table = SymbolTable()
+        self.locals = []
 
     def get_names(self):
         return self.symbol_table
@@ -50,6 +51,16 @@ class ToyParser(Parser):
     def statement_list(self, p):
         p.statement_list.add_child(p.statement)
         return p.statement_list
+
+    @_('EXEC BEGIN inicializacion_bloque statement_list END')
+    def statement(self, p):
+        return Exec(p.statement_list, self.symbol_table, self.locals)
+
+    @_('')
+    def inicializacion_bloque(self, p):
+        locals = []
+        return p
+        # return InitBlock(self.symbol_table, self.locals)
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
@@ -114,11 +125,11 @@ class ToyParser(Parser):
 
     @_('VAR ID COLON INT SEMI_COLON')
     def statement(self, p):
-        return VarDec(p.ID, p.INT, self.symbol_table)
+        return VarDec(p.ID, p.INT, self.symbol_table, self.locals)
 
     @_('VAR ID COLON STRING SEMI_COLON')
     def statement(self, p):
-        return VarDec(p.ID, p.STRING, self.symbol_table)
+        return VarDec(p.ID, p.STRING, self.symbol_table, self.locals)
 
     @_('ID EQUALS expr SEMI_COLON')
     def statement(self, p):
