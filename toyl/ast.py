@@ -231,26 +231,43 @@ class Assignation(BinaryOp, BaseASTNode):
             raise ValueError(
                 "Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
 
+class Exec(BaseASTNode):
+    def __init__(self, block, symbol_table, locals):
+        self.block = block
+        self.symbol_table = symbol_table
+        self.locals = locals
+
+    def eval(self):
+        self.block.eval()
+
+class InitBlock(BaseASTNode):
+    def __init__(self, symbol_table, locals):
+        print('Inicializando Scope al ingresar a bloque')
+        self.symbol_table = symbol_table
+        self.locals = locals
+        locals = []
+
 
 class VarDec(BaseASTNode):
-    def __init__(self, token_name, token_type, symbol_table):
+    def __init__(self, token_name, token_type, symbol_table, locals):
         # Obtengo el valor de cada Token antes de ser procesado
         self.name = token_name
         self.type = token_type
+        self.location = 'has_left_value'
         self.symbol_table = symbol_table
-        # No es factible definir un Token como indice en un diccionario, a esta altura
-        # debo trabajar con los valores directamente
+        self.locals = locals
 
     def eval(self):
+        # Primero chequeo que no exista localmente, en cuyo caso registro la variable en el scope local
+        self.symbol_table.create_local_symbol(self.name, self.locals)
         # Todo es un token, siempre debo convertir al valor que me interesa
-        self.symbol_table.create_symbol(self.name, self.type)
+        self.symbol_table.create_symbol(self.name, self.type, self.location)
 
 
 class Statements(BaseASTNode):
     def __init__(self, first_child, symbol_table):
         self.children = [first_child]
         self.symbol_table = symbol_table
-        self.locals = None
 
     def add_child(self, child):
         self.children.append(child)
@@ -292,7 +309,6 @@ class While(BaseASTNode):
     def __init__(self, cond, block, symbol_table):
         self.cond = cond
         self.block = block
-        self.locals = None
         self.symbol_table = symbol_table
 
     def eval(self):
@@ -307,7 +323,6 @@ class DoWhile(BaseASTNode):
         self.cond = cond
         self.block = block
         self.firt_time = True
-        self.locals = None
         self.symbol_table = symbol_table
 
     def eval(self):
@@ -365,7 +380,6 @@ class ForLoop(BaseASTNode):
         self.for_list = for_list
         self.statement_list = statement_list
         self.symbol_table = symbol_table
-        self.locals = None
 
     def eval(self):
         initial_value = self.for_list.initial_value.eval()

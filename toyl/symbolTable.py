@@ -47,8 +47,12 @@ class SymbolTable():
     def create_symbol(self, symbol, type, location=None):
         # Hay que tener en cuenta si el id es local o no. Una forma de manejar esto es a traves de
         # una pila, es decir, se apila cuando se ingresa a un bloque y se desapila cuando se sale del
-        # mismo o se finaliza la operacion
+        # mismo o se finaliza la operacion.
         # Se crean N pilas, una para cada id, lo primero es chequear si existe o no la misma
+        # Debo verificar que para el entorno o scope actual no existe otro identificador con el mismo nombre.
+
+        # Siempre voy a apilar un nuevo elemento o simbolo en la pila
+        sb = SymbolsWrapper(symbol, type, None, location)
 
         heap = self.symbols.get(symbol)
         # Si no existe Pila, la creo
@@ -59,5 +63,17 @@ class SymbolTable():
             # Si la Pila existe la obtengo
             heap = self.symbols[symbol]
 
-        sb = SymbolsWrapper(symbol, type, location)
         heap.apilar(sb)
+
+    def create_local_symbol(self, symbol, local_symbols):
+        symbol_index = 0
+        try:
+            symbol_index = local_symbols.index(symbol)
+        except ValueError:
+            symbol_index = -1
+
+        if not symbol_index == -1:
+            raise ValueError("Habia una Declaracion previa de {} en el scope local".format(symbol))
+        else:
+            print('Agregando variable {} al scope local'.format(symbol))
+            local_symbols.append(symbol)

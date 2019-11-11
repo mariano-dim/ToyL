@@ -1,6 +1,3 @@
-from toyl.utils.pila import Pila
-
-
 class SymbolsWrapper:
 
     def __init__(self, name, type=None, value=None, location=None):

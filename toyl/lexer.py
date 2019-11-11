@@ -4,7 +4,7 @@ from sly import Lexer
 class ToyLexer(Lexer):
     tokens = {NUMBER_TYPE, STRING_TYPE, OPEN_PARENS, CLOSE_PARENS, COLON,
               INT, STRING, BEGIN, END, PLUS, IF, WHILE, DO, WILDCARD,
-              BIGGER, SEMI_COLON, EQUALS, ID, VAR, ELSE, PRINT,
+              BIGGER, SEMI_COLON, EQUALS, ID, VAR, ELSE, PRINT, EXEC,
               MINUS, MUL, DIV, DIFF, EQUAL, SMALLER, FOR, TO, DOWNTO}
 
     # String containing ignored characters (between tokens)
@@ -24,6 +24,7 @@ class ToyLexer(Lexer):
     
     # Special cases
     ID['if'] = IF
+    ID['exec'] = EXEC
     ID['else'] = ELSE
     ID['var'] = VAR
     ID['to'] = TO
