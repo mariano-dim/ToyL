@@ -238,6 +238,7 @@ class Exec(BaseASTNode):
         self.locals = locals
 
     def eval(self):
+        InitBlock(self.symbol_table, self.locals)
         self.block.eval()
 
 class InitBlock(BaseASTNode):
@@ -245,8 +246,7 @@ class InitBlock(BaseASTNode):
         print('Inicializando Scope al ingresar a bloque')
         self.symbol_table = symbol_table
         self.locals = locals
-        locals = []
-
+        locals.clear()
 
 class VarDec(BaseASTNode):
     def __init__(self, token_name, token_type, symbol_table, locals):

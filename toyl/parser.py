@@ -9,7 +9,7 @@ from toyl.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, St
 
 class ToyParser(Parser):
     tokens = ToyLexer.tokens
-    # debugfile = 'parser.out'
+    #debugfile = 'parser.out'
     start = 'program'
 
     # En la medida que se profundiza en la declaracion de la precedencia, los Tokens van adquiriendo
@@ -52,76 +52,70 @@ class ToyParser(Parser):
         p.statement_list.add_child(p.statement)
         return p.statement_list
 
-    @_('EXEC BEGIN inicializacion_bloque statement_list END')
+    @_('EXEC BEGIN statement_list END')
     def statement(self, p):
         return Exec(p.statement_list, self.symbol_table, self.locals)
-
-    @_('')
-    def inicializacion_bloque(self, p):
-        locals = []
-        return p
-        # return InitBlock(self.symbol_table, self.locals)
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
         return If(p.rel, p.statement_list, self.symbol_table)
 
-    @_('IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement IF, en comparador. Expresion erronea", p)
-        return GrammarError
-
-    @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement IF en bloque de instrucciones. Expresion erronea", p)
-        return GrammarError
+    # @_('IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement IF, en comparador. Expresion erronea", p)
+    #     return GrammarError
+    #
+    # @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement IF en bloque de instrucciones. Expresion erronea", p)
+    #     return GrammarError
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
     def statement(self, p):
         return IfElse(p.rel, p.statement_list0, p.statement_list1, self.symbol_table)
 
-    @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN error END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement IF-ELSE en bloque ELSE. Expresion erronea", p)
-        return GrammarError
-
-    @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN error END ELSE BEGIN statement_list END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement IF-ELSE en bloque IF. Expresion erronea", p)
-        return GrammarError
-
-    @_('IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement IF-ELSE, en comparador. Expresion erronea", p)
-        return GrammarError
+    # @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END ELSE BEGIN error END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement IF-ELSE en bloque ELSE. Expresion erronea", p)
+    #     return GrammarError
+    #
+    # @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN error END ELSE BEGIN statement_list END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement IF-ELSE en bloque IF. Expresion erronea", p)
+    #     return GrammarError
+    #
+    # @_('IF OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END ELSE BEGIN statement_list END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement IF-ELSE, en comparador. Expresion erronea", p)
+    #     return GrammarError
 
     @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
         return While(p.rel, p.statement_list, self.symbol_table)
 
-    @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement WHILE. Expresion erronea", p)
-        return GrammarError()
-
-    @_('WHILE OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement WHILE. Expresion erronea", p)
-        return GrammarError()
+    # @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement WHILE. Expresion erronea", p)
+    #     return GrammarError()
+    #
+    # @_('WHILE OPEN_PARENS error CLOSE_PARENS BEGIN statement_list END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement WHILE. Expresion erronea", p)
+    #     return GrammarError()
 
     @_('DO BEGIN statement_list END WHILE OPEN_PARENS rel CLOSE_PARENS')
     def statement(self, p):
         return DoWhile(p.rel, p.statement_list, self.symbol_table)
 
-    @_('DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement DO-WHILE. Expresion erronea", p)
-        return GrammarError()
-
-    @_('DO BEGIN statement_list END WHILE OPEN_PARENS error CLOSE_PARENS')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement DO-WHILE. Expresion erronea", p)
-        return GrammarError()
+    # @_('DO BEGIN error END WHILE OPEN_PARENS rel CLOSE_PARENS')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement DO-WHILE. Expresion erronea", p)
+    #     return GrammarError()
+    #
+    # @_('DO BEGIN statement_list END WHILE OPEN_PARENS error CLOSE_PARENS')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement DO-WHILE. Expresion erronea", p)
+    #     return GrammarError()
 
     @_('VAR ID COLON INT SEMI_COLON')
     def statement(self, p):
@@ -135,19 +129,19 @@ class ToyParser(Parser):
     def statement(self, p):
         return Assignation(p.ID, p.expr, self.symbol_table)
 
-    @_('ID EQUALS error SEMI_COLON')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement ASSIGN. Expresion erronea", p)
-        return GrammarError()
+    # @_('ID EQUALS error SEMI_COLON')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement ASSIGN. Expresion erronea", p)
+    #     return GrammarError()
 
     @_('PRINT OPEN_PARENS print_expr_list CLOSE_PARENS SEMI_COLON')
     def statement(self, p):
         return Print(p.print_expr_list, self.symbol_table)
 
-    @_('PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement PRINT. Expresion erronea ", p)
-        return GrammarError()
+    # @_('PRINT OPEN_PARENS error CLOSE_PARENS SEMI_COLON')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement PRINT. Expresion erronea ", p)
+    #     return GrammarError()
 
     @_('WILDCARD expr')
     def print_expr_list(self, p):
@@ -162,15 +156,15 @@ class ToyParser(Parser):
     def statement(self, p):
         return ForLoop(p.ID, p.for_list, p.statement_list, self.symbol_table)
 
-    @_('FOR ID EQUALS error DO BEGIN statement_list END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement FOR, en rangos. Expresion erronea", p)
-        return GrammarError()
-
-    @_('FOR ID EQUALS for_list DO BEGIN error END')
-    def statement(self, p):
-        self.print_error("Error de sintaxis en statement FOR, en lista de comandos. Expresion erronea", p)
-        return GrammarError()
+    # @_('FOR ID EQUALS error DO BEGIN statement_list END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement FOR, en rangos. Expresion erronea", p)
+    #     return GrammarError()
+    #
+    # @_('FOR ID EQUALS for_list DO BEGIN error END')
+    # def statement(self, p):
+    #     self.print_error("Error de sintaxis en statement FOR, en lista de comandos. Expresion erronea", p)
+    #     return GrammarError()
 
     @_('initial_value OPEN_PARENS TO CLOSE_PARENS final_value')
     def for_list(self, p):
@@ -202,7 +196,6 @@ class ToyParser(Parser):
 
     @_('expr EQUAL expr')
     def rel(self, p):
-        self.print_error("Error de sintaxis en expession EQUAL, lado izquierdo. Expresion erronea", p)
         return GrammarError()
 
     @_('expr DIFF expr')
