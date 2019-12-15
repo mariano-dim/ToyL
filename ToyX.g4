@@ -78,7 +78,7 @@ WHILE:                          'while';
 DO:                             'do';
 PRINT:                          'print';
 INT:                            'int';
-STRING:                         'string';
+STING:                          'string';
 TO:                             'to';
 FOR:                            'for';
 DOWNTO:                         'downto';

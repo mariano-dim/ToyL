@@ -13,6 +13,11 @@ class BaseASTNode:
         self.add_ast_element('type: ' + type(self).__name__)
 
     @staticmethod
+    def desapilar_todo(symbol_table):
+        from toyl.parser import scopes
+        symbol_table.remove_scope_variables(scopes.tope())
+
+    @staticmethod
     def add_result(value):
         # Todo subresultado agregado debe ser imprimible
         BaseASTNode.result.append(value)
@@ -199,71 +204,6 @@ class Different(BinaryOp, BaseASTNode):
             return False
 
 
-class Assignation(BinaryOp, BaseASTNode):
-
-    def eval(self):
-        # Solo analizo la parte derecha, ya que la izquierda es un Identificador y solo debo revisar
-        # que el mismo este definido
-        right_eval = self.right.eval()
-        right_value = None
-
-        # Debo realizar el control de tipos de datos, es decir el valor de la expresion debe
-        # corresponderse con el tipo de datos definido para el variable
-        td_var_left = self.symbol_table.get_symbol(self.left).get_type()
-        td_var_right = None
-
-        if Utils.is_id(right_eval):
-            right_value = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
-            td_var_right = self.symbol_table.get_symbol(right_eval.getstr()).get_type()
-        elif Utils.is_string(right_eval):
-            right_value = right_eval
-            td_var_right = 'string'
-        elif isinstance(right_eval, numbers.Number):
-            right_value = right_eval
-            td_var_right = 'int'
-
-        # Justo antes de setear el valor chequeo que la expresion sea del tipo esperado
-        if td_var_left == td_var_right:
-            self.symbol_table.set_symbol_value(self.left, right_value)
-        else:
-            BaseASTNode.add_result(
-                'Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
-            raise ValueError(
-                "Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
-
-class Exec(BaseASTNode):
-    def __init__(self, block, symbol_table, locals):
-        self.block = block
-        self.symbol_table = symbol_table
-        self.locals = locals
-
-    def eval(self):
-        InitBlock(self.symbol_table, self.locals)
-        self.block.eval()
-
-class InitBlock(BaseASTNode):
-    def __init__(self, symbol_table, locals):
-        print('Inicializando Scope al ingresar a bloque')
-        self.symbol_table = symbol_table
-        self.locals = locals
-        locals.clear()
-
-class VarDec(BaseASTNode):
-    def __init__(self, token_name, token_type, symbol_table, locals):
-        # Obtengo el valor de cada Token antes de ser procesado
-        self.name = token_name
-        self.type = token_type
-        self.location = 'has_left_value'
-        self.symbol_table = symbol_table
-        self.locals = locals
-
-    def eval(self):
-        # Primero chequeo que no exista localmente, en cuyo caso registro la variable en el scope local
-        self.symbol_table.create_local_symbol(self.name, self.locals)
-        # Todo es un token, siempre debo convertir al valor que me interesa
-        self.symbol_table.create_symbol(self.name, self.type, self.location)
-
-
 class Statements(BaseASTNode):
     def __init__(self, first_child, symbol_table):
         self.children = [first_child]
@@ -305,17 +245,86 @@ class IfElse(BaseASTNode):
             self.block2.eval()
 
 
+class Assignation(BinaryOp, BaseASTNode):
+
+    def eval(self):
+        # Solo analizo la parte derecha, ya que la izquierda es un Identificador y solo debo revisar
+        # que el mismo este definido
+        right_eval = self.right.eval()
+        right_value = None
+
+        # Debo realizar el control de tipos de datos, es decir el valor de la expresion debe
+        # corresponderse con el tipo de datos definido para el variable
+        td_var_left = self.symbol_table.get_symbol(self.left).get_type()
+        td_var_right = None
+
+        if Utils.is_id(right_eval):
+            right_value = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
+            td_var_right = self.symbol_table.get_symbol(right_eval.getstr()).get_type()
+        elif Utils.is_string(right_eval):
+            right_value = right_eval
+            td_var_right = 'string'
+        elif isinstance(right_eval, numbers.Number):
+            right_value = right_eval
+            td_var_right = 'int'
+
+        # Justo antes de setear el valor chequeo que la expresion sea del tipo esperado
+        if td_var_left == td_var_right:
+            self.symbol_table.set_symbol_value(self.left, right_value)
+        else:
+            BaseASTNode.add_result(
+                'Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
+            raise ValueError(
+                "Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
+
+
+class VarDec(BaseASTNode):
+    def __init__(self, token_name, token_type, symbol_table):
+        # Obtengo el valor de cada Token antes de ser procesado
+        self.name = token_name
+        self.type = token_type
+        self.location = 'has_left_value'
+        self.symbol_table = symbol_table
+
+    def eval(self):
+        from toyl.parser import scopes
+        print('variable: ' + self.name + ' definida en Scope: ' + str(scopes.tope()))
+        # To-do es un token, siempre debo convertir al valor que me interesa
+        self.symbol_table.create_symbol(self.name, self.type, self.location, scopes.tope())
+
+
 class While(BaseASTNode):
     def __init__(self, cond, block, symbol_table):
         self.cond = cond
         self.block = block
         self.symbol_table = symbol_table
+        self.scope_declared = False
 
     def eval(self):
+        if not self.scope_declared:
+            from toyl.parser import scopes
+            tope = scopes.tope()
+            scopes.apilar(tope + 1)
+            print('Creando scope local: ', tope + 1)
+            self.scope_declared = True
+
         cond = self.cond.eval()
         if cond:
+            # Debo ejecutar las instrucciones del bloque, y entre ellas las definiciones de variables
+            # de alguna forma tengo que decirle al bloque se es ejecuta dentro del scope N
             self.block.eval()
             self.eval()
+        else:
+            # Voy a definir aca la logica para cuando sale del bloque while, es decir  aqui pude identificar
+            # El punto de retorno y por ende es un punto correcto para eliminar las variables declaradas dentro del bloque
+            # Cuales son las variables declaradas dentro del bloque?
+            # Cuando salgo del bloque while reseteo el valor de scope_local a False
+            from toyl.parser import scopes
+            tope = scopes.tope()
+            print('Eliminando scope: ', tope)
+            # la eliminacion del Scope implica desapilar todos los elementos de la Pila de varuables
+            BaseASTNode.desapilar_todo(self.symbol_table)
+            scopes.desapilar()
 
 
 class DoWhile(BaseASTNode):

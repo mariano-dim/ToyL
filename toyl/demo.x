@@ -1,43 +1,24 @@
-# Programa utilizado para comprobar scope utilizando varios niveles
-# Se compara con un programa similar en python
-
 begin
-    var Y: int;
-    var P:int;
-    var J : int;
-    #J := 100;
-    Y:=10;
+    var Y : int; Y := 10;
+    var P : int; P := 1000;
 
-    for e := 0 (to) 2 do
+    while (Y > 9)
     begin
-        print(->"Iniciando bloque interior");
+        var U : int;
+        U := 1;
 
-        P := 10 + e;
+        print(-> "valor de variable U: " -> U);
+        print(-> "valor de variable Y : " -> Y);
+        Y := Y - 1;
 
-        while (Y>0)
+        var S : int; S := 1;
+        while (S < 5)
         begin
-            print(->"Iniciando bloque intermedio " ->Y);
-            while(P>5)
-            begin
-                print(->"Iniciando bloque mas profundo " ->Y ->P);
-
-                P := P-1;
-
-                exec
-                begin
-                    print(-> "Dentro de bloque, valor de J " -> J);
-                    var J : int;
-                    J := 10;
-                    print(-> "Dentro de bloque, valor de J " -> J);
-                end
-
-                # En este caso estoy definiendo reiteradamente el mismo ID para el mismo scope
-
-                J := 1;
-
-            end
-
-            Y := Y-1;
+            var P :int; P := 100;
+            print(-> "valor de variable S : " -> S);
+            S := S+1;
         end
     end
+    print(-> "valor de variable U (Fuera de Scope) : " -> U);
+
 end

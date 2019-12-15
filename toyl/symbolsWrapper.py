@@ -1,10 +1,17 @@
 class SymbolsWrapper:
 
-    def __init__(self, name, type=None, value=None, location=None):
+    def __init__(self, name, type=None, value=None, location=None, scope=None):
         self.name = name
         self.type = type
         self.value = value
         self.location = location
+        self.scope = scope
+
+    def set_scope(self, scope):
+        self.scope = scope
+
+    def get_scope(self):
+        return self.scope
 
     def set_name(self, name):
         self.name = name

@@ -12,16 +12,58 @@ class SymbolTable():
     def get_all_symbols(self):
         return self.symbols
 
+    def remove_scope_variables(self, scope):
+        # Si los hay, elimino todos los objetos del scope actual
+
+        # print('Imprimiendo todas las variables del la tabla de simbolos')
+        # for sym in self.symbols.keys():
+        #     print('Variable : ' + str(sym)
+        #           + ' = ' + str(self.get_symbol(sym).get_value())
+        #           + ' - ' + self.get_symbol(sym).get_type()
+        #           + ' - ' + self.get_symbol(sym).get_location()
+        #           + ' - ' + str(self.get_symbol(sym).get_scope()))
+
+        #print('Eliminado elementos para el scope objetivo:' + str(scope))
+        # Itero a traves del diccionario mediante una lista. Esto me permite editar la estructura mientras la recorro
+        for sym in list(self.symbols):
+            # Desapilo elementos de cada una de las Pilas, para ver si corresponden al Scope, en cuyo caso
+            # las elimina, caso contrario las deja
+            heap = self.symbols.get(sym)
+            # Una vez creada una entrada en el diccionario la Pila siempre existe, aunque puede estar varia
+            if heap is None:
+                raise ValueError(
+                    "Entrada en diccionario sin definicion de Pila".format(sym))
+            else:
+                same_value_and_scope = True
+                while same_value_and_scope:
+                    # Tengo que desapilar los variables repetidas
+                    value = heap.desapilar()
+                    # Si el elemento desapilado no corresponde al scope lo vuelvo a apilar
+                    # Asumo que los elementos de la arriba de la Pila son de scopes superiores, por lo tanto cuando encuentro
+                    # un elemento con scope diferente salgo
+                    if not scope == value.get_scope():
+                        heap.apilar(value)
+                        same_value_and_scope = False
+                    else:
+                        print('Se elimino variable :' + value.get_name())
+                    # Siempre que la Pila este vacia elimino la entrada del diccionario
+                    if heap.es_vacia():
+                        # Si la Pila esta vacia, porque acabo de eliminar el unico elemento que tenia, puedo
+                        # asumir que voy a eliminar una entrada en el diccionario que siempre existe
+                        del self.symbols[sym]
+                        same_value_and_scope = False
+
+
+
     def get_symbol(self, symbol):
         # Una vez que consulto el elemento, debo tener cuidado de no eliminarlo de la pila
         heap = self.symbols.get(symbol)
-        # Si no existe Pila, la creo
         if heap:
             value = heap.desapilar()
             heap.apilar(value)
             return value
         else:
-            raise ValueError("set_symbol_value. ID {} no fue declarado".format(symbol))
+            raise ValueError("Pila no decladara. set_symbol_value. ID {} no fue declarado".format(symbol))
 
     def set_symbol_value(self, symbol, value):
         # Value es el valor de un IDentificador. Busco el ID en el diccionario
@@ -44,36 +86,24 @@ class SymbolTable():
         else:
             raise ValueError("set_symbol_value. ID {} no fue declarado".format(symbol))
 
-    def create_symbol(self, symbol, type, location=None):
+    def create_symbol(self, symbol, type, location=None, scope=None):
         # Hay que tener en cuenta si el id es local o no. Una forma de manejar esto es a traves de
         # una pila, es decir, se apila cuando se ingresa a un bloque y se desapila cuando se sale del
         # mismo o se finaliza la operacion.
         # Se crean N pilas, una para cada id, lo primero es chequear si existe o no la misma
         # Debo verificar que para el entorno o scope actual no existe otro identificador con el mismo nombre.
-
         # Siempre voy a apilar un nuevo elemento o simbolo en la pila
-        sb = SymbolsWrapper(symbol, type, None, location)
-
+        sb = SymbolsWrapper(symbol, type, None, location, scope)
+        # Obtiene la Pila correspondiente del diccinario. El mismo esta indexado por nombre de variable
         heap = self.symbols.get(symbol)
         # Si no existe Pila, la creo
         if heap is None:
             heap = Pila()
+            # Inserta nueva Pila "vacia" en el diccionario
             self.symbols[symbol] = heap
         else:
-            # Si la Pila existe la obtengo
+            # Si la Pila existe la obtengo. Solo existe en el caso que ya hubiera una variable denominada igual
             heap = self.symbols[symbol]
 
+        # Siempre apila
         heap.apilar(sb)
-
-    def create_local_symbol(self, symbol, local_symbols):
-        symbol_index = 0
-        try:
-            symbol_index = local_symbols.index(symbol)
-        except ValueError:
-            symbol_index = -1
-
-        if not symbol_index == -1:
-            raise ValueError("Habia una Declaracion previa de {} en el scope local".format(symbol))
-        else:
-            print('Agregando variable {} al scope local'.format(symbol))
-            local_symbols.append(symbol)

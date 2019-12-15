@@ -56,19 +56,20 @@ def main():
     parser = ToyParser()
     # ast es el arbol AST expresado a traves de un objeto principal Statements
     ast = parser.parse(lexer.tokenize(content))
-
-    # ast.print()
+    # Inicializacion del arbol AST y evaluacion del mismo son instantes diferentes, no mezclar ni confundir
     ast.eval()
 
     # Simbol table
     names = parser.get_names().get_all_symbols()
 
-    # print('Imprimiendo tabla de simbolos')
-    # for sym in names.keys():
-    #     print('Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
-    #     + parser.get_names().get_symbol(sym).get_type() )
-    #     #+ ' - ' + pg.get_names().get_symbol(sym).get_location() )
-    #
+    print('Imprimiendo tabla de simbolos del scope Raiz')
+    for sym in names.keys():
+        print('Simbolo : ' + str(sym)
+              + ' = ' + str(parser.get_names().get_symbol(sym).get_value())
+              + ' - ' + parser.get_names().get_symbol(sym).get_type()
+              + ' - ' + parser.get_names().get_symbol(sym).get_location()
+              + ' - ' + str(parser.get_names().get_symbol(sym).get_scope()))
+
     # # Imprimiendo el resultado de la lista de resultados del programa
     # for op in BaseASTNode.get_result():
     #     print(op)

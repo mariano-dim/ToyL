@@ -3,13 +3,20 @@ from toyl.lexer import ToyLexer
 from toyl.symbolTable import SymbolTable
 from toyl.ast import (Number, Add, Sub, Mul, Div, String, If, While, DoWhile, Statements,
                       Bigger, Smaller, Equal, Different, VarDec, Identifier, IfElse, PrintParams,
-                      Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError, Exec, InitBlock,
+                      Print, Assignation, Empty, ForLoop, ForList, MinusExpression, GrammarError,
                       )
+from toyl.utils.pila import Pila
 
+# El scope se apila y se desapila y es un indicador que se asocia a cada identificador
+# Con la unica mision de determinar si la variable esta o no definida en su scope
+# Por facilidad lo defino global, asi se ve lo mismo desde cualquier punto
+scopes = Pila()
+# Apilo el scope arido
+scopes.apilar(0)
 
 class ToyParser(Parser):
     tokens = ToyLexer.tokens
-    #debugfile = 'parser.out'
+    # debugfile = 'parser.out'
     start = 'program'
 
     # En la medida que se profundiza en la declaracion de la precedencia, los Tokens van adquiriendo
@@ -24,7 +31,6 @@ class ToyParser(Parser):
 
     def __init__(self):
         self.symbol_table = SymbolTable()
-        self.locals = []
 
     def get_names(self):
         return self.symbol_table
@@ -51,10 +57,6 @@ class ToyParser(Parser):
     def statement_list(self, p):
         p.statement_list.add_child(p.statement)
         return p.statement_list
-
-    @_('EXEC BEGIN statement_list END')
-    def statement(self, p):
-        return Exec(p.statement_list, self.symbol_table, self.locals)
 
     @_('IF OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
@@ -91,6 +93,7 @@ class ToyParser(Parser):
 
     @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN statement_list END')
     def statement(self, p):
+        # While, al igual que los demas elementos AST, son los constituyentes del arbol AST
         return While(p.rel, p.statement_list, self.symbol_table)
 
     # @_('WHILE OPEN_PARENS rel CLOSE_PARENS BEGIN error END')
@@ -119,11 +122,11 @@ class ToyParser(Parser):
 
     @_('VAR ID COLON INT SEMI_COLON')
     def statement(self, p):
-        return VarDec(p.ID, p.INT, self.symbol_table, self.locals)
+        return VarDec(p.ID, p.INT, self.symbol_table)
 
     @_('VAR ID COLON STRING SEMI_COLON')
     def statement(self, p):
-        return VarDec(p.ID, p.STRING, self.symbol_table, self.locals)
+        return VarDec(p.ID, p.STRING, self.symbol_table)
 
     @_('ID EQUALS expr SEMI_COLON')
     def statement(self, p):
@@ -248,3 +251,4 @@ class ToyParser(Parser):
               + ' lineno ' + str(p.error.lineno) + ' '
               + ' type ' + p.error.type + ' '
               + ' value ' + p.error.value)
+
