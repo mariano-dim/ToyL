@@ -32,6 +32,7 @@ class BaseASTNode:
     def get_result():
         return BaseASTNode.result
 
+
 class Empty(BaseASTNode):
 
     def eval(self):
@@ -128,7 +129,15 @@ class Add(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        return int(left_val) + int(right_val)
+        # Solo se pueden sumar valores numericos
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden sumar numeros enteros'.format(valueError))
+            raise ValueError('Error Semantico; Error de tipos, solo se pueden sumar numeros enteros'.format(valueError))
+        return l_value + r_value
 
     def print(self):
         return self.eval()
@@ -138,7 +147,15 @@ class Sub(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        return int(left_val) - int(right_val)
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden restar numeros enteros'.format(valueError))
+            raise ValueError(
+                'Error Semantico; Error de tipos, solo se pueden restar numeros enteros'.format(valueError))
+        return l_value - r_value
 
     def print(self):
         return self.eval()
@@ -148,7 +165,15 @@ class Mul(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        return int(left_val) * int(right_val)
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden multiplicar numeros enteros'.format(valueError))
+            raise ValueError(
+                'Error Semantico; Error de tipos, solo se pueden multiplicar numeros enteros'.format(valueError))
+        return l_value * r_value
 
     def print(self):
         return self.eval()
@@ -158,18 +183,24 @@ class Div(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
+        # + ' index ' + str(p.error.index) + ' '
+        # + ' lineno ' + str(p.error.lineno) + ' '
+        # + ' type ' + p.error.type + ' '
+        # + ' value ' + p.error.value)
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden dividir numeros enteros'.format(valueError))
+            raise ValueError(
+                'Error Semantico; Error de tipos, solo se pueden dividir numeros enteros'.format(valueError))
         # Chequeo la division por cero
         if int(right_val) == 0:
             BaseASTNode.add_result('Error Semantico; No se puede dividir por cero')
             raise ValueError('Error Semantico; No se puede dividir por cero')
 
-        # + ' index ' + str(p.error.index) + ' '
-        # + ' lineno ' + str(p.error.lineno) + ' '
-        # + ' type ' + p.error.type + ' '
-        # + ' value ' + p.error.value)
-        else:
-            result = int(int(left_val) / int(right_val))
-            return result
+        return l_value / r_value
 
     def print(self):
         return self.eval()
@@ -179,8 +210,16 @@ class Bigger(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        if int(left_val) > int(right_val):
-            return True
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+            raise ValueError('Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+
+        if l_value > r_value:
+            return True;
         else:
             return False
 
@@ -189,8 +228,16 @@ class Smaller(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        if int(left_val) < int(right_val):
-            return True
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+            raise ValueError('Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+
+        if l_value < r_value:
+            return True;
         else:
             return False
 
@@ -201,8 +248,16 @@ class Equal(BinaryOp, BaseASTNode):
         # Debo chequear que el 'valor' del lado izquierdo concuerde con el valor
         # de la expresion que hay a la derecha
         left_val, right_val = self.get_values()
-        if int(left_val) == int(right_val):
-            return True
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+            raise ValueError('Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+
+        if l_value == r_value:
+            return True;
         else:
             return False
 
@@ -211,8 +266,16 @@ class Different(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        if not int(left_val) == int(right_val):
-            return True
+        try:
+            l_value = int(left_val)
+            r_value = int(right_val)
+        except ValueError as valueError:
+            BaseASTNode.add_result(
+                'Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+            raise ValueError('Error Semantico; Error de tipos, solo se pueden comparar enteros'.format(valueError))
+
+        if not l_value == r_value:
+            return True;
         else:
             return False
 
@@ -278,9 +341,11 @@ class Assignation(BinaryOp, BaseASTNode):
 
         if not location == "has_left_value":
             BaseASTNode.add_result(
-                'Error Semantico; La variable {} no se puede usar como valor izquierdo. No es asignable'.format(name_left_variable))
+                'Error Semantico; La variable {} no se puede usar como valor izquierdo. No es asignable'.format(
+                    name_left_variable))
             raise ValueError(
-                'Error Semantico; La variable {} no se puede usar como valor izquierdo. No es asignable'.format(name_left_variable))
+                'Error Semantico; La variable {} no se puede usar como valor izquierdo. No es asignable'.format(
+                    name_left_variable))
 
         if Utils.is_id(right_eval):
             right_value = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
@@ -297,9 +362,11 @@ class Assignation(BinaryOp, BaseASTNode):
             self.symbol_table.set_symbol_value(self.left, right_value)
         else:
             BaseASTNode.add_result(
-                'Error Semantico; Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
+                'Error Semantico; Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(
+                    td_var_left, td_var_right))
             raise ValueError(
-                "Error Semantico; Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
+                "Error Semantico; Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(
+                    td_var_left, td_var_right))
 
 
 class VarDec(BaseASTNode):
@@ -312,8 +379,8 @@ class VarDec(BaseASTNode):
 
     def eval(self):
         from toyl.parser import scopes
-        #print('variable: ' + self.name + ' definida en Scope: ' + str(scopes.tope()))
-        #BaseASTNode.add_result('Variable {}, definida en Scope: {} '.format(self.name, str(scopes.tope())))
+        # print('variable: ' + self.name + ' definida en Scope: ' + str(scopes.tope()))
+        # BaseASTNode.add_result('Variable {}, definida en Scope: {} '.format(self.name, str(scopes.tope())))
         # To-do es un token, siempre debo convertir al valor que me interesa
         self.symbol_table.create_symbol(self.name, self.type, self.location, scopes.tope())
 
@@ -330,8 +397,8 @@ class While(BaseASTNode):
             from toyl.parser import scopes
             tope = scopes.tope()
             scopes.apilar(tope + 1)
-            #print('Creando scope local: ', tope + 1)
-            #BaseASTNode.add_result('Creando scope local: {}'.format(str(tope + 1)))
+            # print('Creando scope local: ', tope + 1)
+            # BaseASTNode.add_result('Creando scope local: {}'.format(str(tope + 1)))
             self.scope_declared = True
 
         cond = self.cond.eval()
@@ -347,8 +414,8 @@ class While(BaseASTNode):
             # Cuando salgo del bloque while reseteo el valor de scope_local a False
             from toyl.parser import scopes
             tope = scopes.tope()
-            #print('Eliminando scope: ', tope)
-            #BaseASTNode.add_result('Eliminando scope: {}'.format(str(tope)))
+            # print('Eliminando scope: ', tope)
+            # BaseASTNode.add_result('Eliminando scope: {}'.format(str(tope)))
             # la eliminacion del Scope implica desapilar todos los elementos de la Pila de varuables
             BaseASTNode.desapilar_todo(self.symbol_table)
             scopes.desapilar()
@@ -394,8 +461,8 @@ class Print(BaseASTNode):
                 values_list_without_variables.append(str(value))
             else:
                 values_list_without_variables.append(str(elem.print()))
-        #print(''.join(values_list_without_variables))
-        BaseASTNode.add_result('{}'.format( ''.join(values_list_without_variables) ))
+        # print(''.join(values_list_without_variables))
+        BaseASTNode.add_result('{}'.format(''.join(values_list_without_variables)))
 
 
 class PrintParams(BaseASTNode):
