@@ -20,6 +20,7 @@ class BaseASTNode:
     @staticmethod
     def add_result(value):
         # Todo subresultado agregado debe ser imprimible
+        print(value)
         BaseASTNode.result.append(value)
 
     @staticmethod
@@ -30,7 +31,6 @@ class BaseASTNode:
     @staticmethod
     def get_result():
         return BaseASTNode.result
-
 
 class Empty(BaseASTNode):
 
@@ -62,7 +62,8 @@ class MinusExpression(BaseASTNode):
         if Utils.is_id(value):
             value = self.symbol_table.get_symbol(value.get_name()).get_value()
         elif not isinstance(value, numbers.Number):
-            raise ValueError('Se esperaba un Identificador o un numero entero')
+            BaseASTNode.add_result('Error Semantico; Se esperaba un Identificador o un numero entero')
+            raise ValueError('Error Semantico; Se esperaba un Identificador o un numero entero')
         return -value
 
 
@@ -108,15 +109,16 @@ class BinaryOp():
         if Utils.is_id(left_eval):
             left_val = self.symbol_table.get_symbol(left_eval.get_name()).get_value()
         elif Utils.is_string(left_eval):
-            raise ValueError('Error de tipos')
+            BaseASTNode.add_result('Error Semantico; Error de tipos')
+            raise ValueError('Error Semantico; Error de tipos')
         elif isinstance(left_eval, numbers.Number):
             left_val = left_eval
 
         if Utils.is_id(right_eval):
             right_val = self.symbol_table.get_symbol(right_eval.get_name()).get_value()
         elif Utils.is_string(right_eval):
-            BaseASTNode.add_result('Error de tipos')
-            raise ValueError('Error de tipos')
+            BaseASTNode.add_result('Error Semantico; Error de tipos')
+            raise ValueError('Error Semantico; Error de tipos')
         elif isinstance(right_eval, numbers.Number):
             right_val = right_eval
         return left_val, right_val
@@ -156,7 +158,18 @@ class Div(BinaryOp, BaseASTNode):
 
     def eval(self):
         left_val, right_val = self.get_values()
-        return int(left_val) / int(right_val)
+        # Chequeo la division por cero
+        if int(right_val) == 0:
+            BaseASTNode.add_result('Error Semantico; No se puede dividir por cero')
+            raise ValueError('Error Semantico; No se puede dividir por cero')
+
+        # + ' index ' + str(p.error.index) + ' '
+        # + ' lineno ' + str(p.error.lineno) + ' '
+        # + ' type ' + p.error.type + ' '
+        # + ' value ' + p.error.value)
+        else:
+            result = int(int(left_val) / int(right_val))
+            return result
 
     def print(self):
         return self.eval()
@@ -275,9 +288,9 @@ class Assignation(BinaryOp, BaseASTNode):
             self.symbol_table.set_symbol_value(self.left, right_value)
         else:
             BaseASTNode.add_result(
-                'Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
+                'Error Semantico; Error de tipos, se esperaba {}, pero la expresion era del tipo {} '.format(td_var_left, td_var_right))
             raise ValueError(
-                "Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
+                "Error Semantico; Error de tipos, se esperaba {}, pero la expresion era del tipo {} ".format(td_var_left, td_var_right))
 
 
 class VarDec(BaseASTNode):
@@ -290,7 +303,8 @@ class VarDec(BaseASTNode):
 
     def eval(self):
         from toyl.parser import scopes
-        print('variable: ' + self.name + ' definida en Scope: ' + str(scopes.tope()))
+        #print('variable: ' + self.name + ' definida en Scope: ' + str(scopes.tope()))
+        #BaseASTNode.add_result('Variable {}, definida en Scope: {} '.format(self.name, str(scopes.tope())))
         # To-do es un token, siempre debo convertir al valor que me interesa
         self.symbol_table.create_symbol(self.name, self.type, self.location, scopes.tope())
 
@@ -307,7 +321,8 @@ class While(BaseASTNode):
             from toyl.parser import scopes
             tope = scopes.tope()
             scopes.apilar(tope + 1)
-            print('Creando scope local: ', tope + 1)
+            #print('Creando scope local: ', tope + 1)
+            #BaseASTNode.add_result('Creando scope local: {}'.format(str(tope + 1)))
             self.scope_declared = True
 
         cond = self.cond.eval()
@@ -323,7 +338,8 @@ class While(BaseASTNode):
             # Cuando salgo del bloque while reseteo el valor de scope_local a False
             from toyl.parser import scopes
             tope = scopes.tope()
-            print('Eliminando scope: ', tope)
+            #print('Eliminando scope: ', tope)
+            BaseASTNode.add_result('Eliminando scope: {}'.format(str(tope)))
             # la eliminacion del Scope implica desapilar todos los elementos de la Pila de varuables
             BaseASTNode.desapilar_todo(self.symbol_table)
             scopes.desapilar()
@@ -369,7 +385,8 @@ class Print(BaseASTNode):
                 values_list_without_variables.append(str(value))
             else:
                 values_list_without_variables.append(str(elem.print()))
-        print(''.join(values_list_without_variables))
+        #print(''.join(values_list_without_variables))
+        BaseASTNode.add_result('{}'.format( ''.join(values_list_without_variables) ))
 
 
 class PrintParams(BaseASTNode):

@@ -18,8 +18,7 @@ from toyl.ast import BaseASTNode
 class WidgetGallery(QDialog):
     def __init__(self, parent=None):
         super(WidgetGallery, self).__init__(parent)
-        # self.showMaximized()
-        self.setFixedSize(1024, 600)
+        self.showMaximized()
         self.textEditprocessedSourceCode = None
         self.textEditSourceCode = None
 
@@ -48,7 +47,7 @@ class WidgetGallery(QDialog):
 
         mainLayout = QGridLayout()
         mainLayout.addLayout(topLayout, 0, 0, 1, 2)
-        mainLayout.addWidget(self.topLeftGroupBox, 1, 0, 2,1)
+        mainLayout.addWidget(self.topLeftGroupBox, 1, 0, 2, 1)
         mainLayout.addWidget(self.topRightGroupBox, 1, 1)
         mainLayout.addWidget(self.bottomRightTabWidget, 2, 1)
 
@@ -95,7 +94,6 @@ class WidgetGallery(QDialog):
 
     def createTopRightGroupBox(self):
 
-        # def createbottomRightTabWidget(self):
         self.bottomRightTabWidget = QTabWidget()
         self.bottomRightTabWidget.setSizePolicy(QSizePolicy.Preferred,
                                                 QSizePolicy.Ignored)
@@ -109,31 +107,22 @@ class WidgetGallery(QDialog):
         tab1hbox = QHBoxLayout()
         tab1hbox.setContentsMargins(5, 5, 5, 5)
         tab1hbox.addWidget(self.textEditprocessedSourceCode)
+
         tab1.setLayout(tab1hbox)
 
         self.bottomRightTabWidget.addTab(tab1, "Source Code Procesado.")
 
         self.topRightGroupBox = QGroupBox("Opciones", self)
 
-        tokenizarPushButton = QPushButton("Tokenizar Source Code", self)
-        tokenizarPushButton.setToolTip('This is an example button')
+        tokenizarPushButton = QPushButton("Tokenizar Source Code (Generar lexemas)", self)
+        tokenizarPushButton.setToolTip('Tokenizar Source Code')
         tokenizarPushButton.setDefault(True)
         tokenizarPushButton.clicked.connect(self.on_clickTokenizar)
 
-        parsearPushButton = QPushButton("Parsear Source Code", self)
-        parsearPushButton.setToolTip('This is an example button')
-        parsearPushButton.setChecked(True)
-        parsearPushButton.clicked.connect(self.on_clickParser)
-
-        interpreterPushButton = QPushButton("Interpretar Source Code")
-        interpreterPushButton.setToolTip('This is an example button')
+        interpreterPushButton = QPushButton("Ejecutar programa fuente (Interpretar)")
+        interpreterPushButton.setToolTip('Ejecutar programa fuente (Interpretar)')
         interpreterPushButton.setChecked(True)
         interpreterPushButton.clicked.connect(self.on_clickInterpreter)
-
-        symbolsPushButton = QPushButton("Mostrar Tabla de Simbolos")
-        symbolsPushButton.setToolTip('Muestra la tabla de simbolos')
-        symbolsPushButton.setChecked(True)
-        symbolsPushButton.clicked.connect(self.on_clickSymbolsResults)
 
         cleanerPushButton = QPushButton("Clean TextBox")
         cleanerPushButton.setToolTip('Limpiar TextBox resultados')
@@ -142,92 +131,60 @@ class WidgetGallery(QDialog):
 
         layout = QVBoxLayout()
         layout.addWidget(tokenizarPushButton)
-        layout.addWidget(parsearPushButton)
         layout.addWidget(interpreterPushButton)
         layout.addWidget(cleanerPushButton)
-        layout.addWidget(symbolsPushButton)
 
         layout.addStretch(1)
         self.topRightGroupBox.setLayout(layout)
-
-
-    @pyqtSlot()
-    def on_clickSymbolsResults(self):
-        print('Symbol table button click')
-        self.textEditprocessedSourceCode.clear()
-        # Limpio la variable resultado, ya que de tener un valor es de la ejecucion anterior
-        BaseASTNode.clean_result()
-        # Create lexer
-        print("Tokenizando...")
-        lexer = ToyLexer()
-        print(self.textEditSourceCode.toPlainText())
-        lexer.startLexer()
-        # Create parser
-        print("Parseando...")
-        parser = ToyParser()
-        parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText())).eval()
-
-        names = parser.get_names().get_all_symbols()
-        print('Imprimiendo tabla de simbolos')
-        for sym in names.keys():
-            print('Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
-                  + parser.get_names().get_symbol(sym).get_type())
-            self.textEditprocessedSourceCode.appendPlainText(
-                'Simbolo : ' + str(sym) + ' = ' + str(parser.get_names().get_symbol(sym).get_value()) + ' - '
-                + parser.get_names().get_symbol(sym).get_type())
 
     @pyqtSlot()
     def on_clickCleanResults(self):
         print('Limpiar resultados')
         self.textEditprocessedSourceCode.clear()
+        BaseASTNode.clean_result()
 
     @pyqtSlot()
     def on_clickTokenizar(self):
         print('Tokenizer button click')
         self.textEditprocessedSourceCode.clear()
+        BaseASTNode.clean_result()
         # Create lexer
         print("Tokenizando...")
         lexer = ToyLexer()
-        print(self.textEditSourceCode.toPlainText())
-        lexer.startLexer()
+        try:
+            for tok in lexer.tokenize(self.textEditSourceCode.toPlainText()):
+                BaseASTNode.add_result(
+                    'TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
+        except (ValueError, RuntimeError, TypeError, NameError):
+            print('Error tokenizando entrada')
 
-        for tok in lexer.tokenize(self.textEditSourceCode.toPlainText()):
-            print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
-            self.textEditprocessedSourceCode.appendPlainText('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
-
-    @pyqtSlot()
-    def on_clickParser(self):
-        print('Parser button click')
-        self.textEditprocessedSourceCode.clear()
-        # Create lexer
-        print("Tokenizando...")
-        lexer = ToyLexer()
-        print(self.textEditSourceCode.toPlainText())
-        lexer.startLexer()
-        # Create parser
-        print("Parseando...")
-        parser = ToyParser()
-        # ast es el arbol AST expresado a traves de un objeto principal Statements
-        ast = parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText()))
-
-        ast.eval()
-
+        for op in BaseASTNode.get_result():
+            self.textEditprocessedSourceCode.appendPlainText(op)
 
     @pyqtSlot()
     def on_clickInterpreter(self):
-        print('Interpreter button click')
         self.textEditprocessedSourceCode.clear()
+        BaseASTNode.clean_result()
         # Limpio la variable resultado, ya que de tener un valor es de la ejecucion anterior
         BaseASTNode.clean_result()
         # Create lexer
         print("Tokenizando...")
         lexer = ToyLexer()
-        print(self.textEditSourceCode.toPlainText())
-        lexer.startLexer()
+        # print(self.textEditSourceCode.toPlainText())
         # Create parser
         print("Parseando...")
         parser = ToyParser()
-        parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText())).eval()
+        # ast es el arbol AST expresado a traves de un objeto principal Statements
+        ast = parser.parse(lexer.tokenize(self.textEditSourceCode.toPlainText()))
+        try:
+            ast.eval()
+        except ValueError as valueError:
+            print("Error Semantico; {0}".format(valueError))
+        except AttributeError as attributeError:
+            # ValueError, TypeError, NameError,
+            print("Error Sintactico; {0}".format(attributeError))
+        except:
+            print("Error inesperado:", sys.exc_info()[0])
 
         # Imprimiendo el resultado de la lista de resultados del programa
         for op in BaseASTNode.get_result():

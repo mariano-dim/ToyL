@@ -45,12 +45,11 @@ def main():
     # Create lexer
     print("Tokenizando...")
     lexer = ToyLexer()
-    # print(content)
-    lexer.startLexer()
 
-    # for tok in lexer.tokenize(content):
-    #     print('TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type,
-    #                                                       val=tok.value))
+    for tok in lexer.tokenize(content):
+        BaseASTNode.add_result(
+            'TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
+
     # Create parser
     print("Parseando...")
     parser = ToyParser()
@@ -60,15 +59,14 @@ def main():
     ast.eval()
 
     # Simbol table
-    names = parser.get_names().get_all_symbols()
-
-    print('Imprimiendo tabla de simbolos del scope Raiz')
-    for sym in names.keys():
-        print('Simbolo : ' + str(sym)
-              + ' = ' + str(parser.get_names().get_symbol(sym).get_value())
-              + ' - ' + parser.get_names().get_symbol(sym).get_type()
-              + ' - ' + parser.get_names().get_symbol(sym).get_location()
-              + ' - ' + str(parser.get_names().get_symbol(sym).get_scope()))
+    # print('Imprimiendo tabla de simbolos del scope Raiz')
+    # names = parser.get_names().get_all_symbols()
+    # for sym in names.keys():
+    #     print('Simbolo : ' + str(sym)
+    #           + ' = ' + str(parser.get_names().get_symbol(sym).get_value())
+    #           + ' - ' + parser.get_names().get_symbol(sym).get_type()
+    #           + ' - ' + parser.get_names().get_symbol(sym).get_location()
+    #           + ' - ' + str(parser.get_names().get_symbol(sym).get_scope()))
 
     # # Imprimiendo el resultado de la lista de resultados del programa
     # for op in BaseASTNode.get_result():

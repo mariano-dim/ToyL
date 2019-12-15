@@ -1,3 +1,4 @@
+from toyl.ast import BaseASTNode
 from toyl.symbolsWrapper import SymbolsWrapper
 from toyl.utils.pila import Pila
 
@@ -31,8 +32,8 @@ class SymbolTable():
             heap = self.symbols.get(sym)
             # Una vez creada una entrada en el diccionario la Pila siempre existe, aunque puede estar varia
             if heap is None:
-                raise ValueError(
-                    "Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
+                raise ValueError("Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
+                BaseASTNode.add_result("Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
             else:
                 same_value_and_scope = True
                 while same_value_and_scope:
@@ -63,6 +64,7 @@ class SymbolTable():
             heap.apilar(value)
             return value
         else:
+            BaseASTNode.add_result("Error Semantico; Variable {} no fue declarada o no se encuentra dentro del scope".format(symbol))
             raise ValueError("Error Semantico; Variable {} no fue declarada o no se encuentra dentro del scope".format(symbol))
 
     def set_symbol_value(self, symbol, value):
@@ -78,12 +80,13 @@ class SymbolTable():
                     sw.set_value(value)
                     heap.apilar(sw)
                 else:
-                    raise ValueError(
-                        "Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
+                    BaseASTNode.add_result("Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
+                    raise ValueError("Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
             else:
-                raise ValueError(
-                    "Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
+                BaseASTNode.add_result("Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
+                raise ValueError("Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
         else:
+            BaseASTNode.add_result("Error Semantico; Variable {} no fue declarada".format(symbol))
             raise ValueError("Error Semantico; Variable {} no fue declarada".format(symbol))
 
     def create_symbol(self, symbol, type, location=None, scope=None):
