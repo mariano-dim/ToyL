@@ -270,8 +270,17 @@ class Assignation(BinaryOp, BaseASTNode):
         # corresponderse con el tipo de datos definido para el variable
         # Ademas y aun mas prioritario, debo chequear que la variable existe y esta definida en el scope o es heredada
         # del scope del padre
+        # Adicionalmente debo chequear que la variable se puede asignar por tener valor derecho
+        name_left_variable = self.symbol_table.get_symbol(self.left).get_name()
         td_var_left = self.symbol_table.get_symbol(self.left).get_type()
+        location = self.symbol_table.get_symbol(self.left).get_location()
         td_var_right = None
+
+        if not location == "has_left_value":
+            BaseASTNode.add_result(
+                'Error Semantico; La variable {} no se puede usar como valor izquierdo. No es asignable'.format(name_left_variable))
+            raise ValueError(
+                'Error Semantico; La variable {} no se puede usar como valor izquierdo. No es asignable'.format(name_left_variable))
 
         if Utils.is_id(right_eval):
             right_value = self.symbol_table.get_symbol(right_eval.getstr()).get_value()
@@ -339,7 +348,7 @@ class While(BaseASTNode):
             from toyl.parser import scopes
             tope = scopes.tope()
             #print('Eliminando scope: ', tope)
-            BaseASTNode.add_result('Eliminando scope: {}'.format(str(tope)))
+            #BaseASTNode.add_result('Eliminando scope: {}'.format(str(tope)))
             # la eliminacion del Scope implica desapilar todos los elementos de la Pila de varuables
             BaseASTNode.desapilar_todo(self.symbol_table)
             scopes.desapilar()
