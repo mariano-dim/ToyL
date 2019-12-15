@@ -249,12 +249,14 @@ class Assignation(BinaryOp, BaseASTNode):
 
     def eval(self):
         # Solo analizo la parte derecha, ya que la izquierda es un Identificador y solo debo revisar
-        # que el mismo este definido
+        # que el mismo este definido o heredado del scope del padre
         right_eval = self.right.eval()
         right_value = None
 
         # Debo realizar el control de tipos de datos, es decir el valor de la expresion debe
         # corresponderse con el tipo de datos definido para el variable
+        # Ademas y aun mas prioritario, debo chequear que la variable existe y esta definida en el scope o es heredada
+        # del scope del padre
         td_var_left = self.symbol_table.get_symbol(self.left).get_type()
         td_var_right = None
 

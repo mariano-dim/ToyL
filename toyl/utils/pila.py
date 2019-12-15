@@ -22,6 +22,17 @@ class Pila:
         except IndexError:
             raise ValueError("La pila de simbolos está vacía")
 
+
+    def tope(self):
+        """ Devuelve el elemento tope
+            Si la pila está vacía levanta una excepción. """
+        try:
+            tope =  self.items.pop()
+            self.apilar(tope)
+            return tope
+        except IndexError:
+            raise ValueError("La pila de simbolos está vacía")
+
     def es_vacia(self):
         """ Devuelve True si la lista está vacía, False si no. """
         return self.items == []
