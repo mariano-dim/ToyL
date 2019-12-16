@@ -199,7 +199,7 @@ class ToyParser(Parser):
 
     @_('expr EQUAL expr')
     def rel(self, p):
-        return GrammarError()
+        return Equal(p.expr0, p.expr1, self.symbol_table)
 
     @_('expr DIFF expr')
     def rel(self, p):
