@@ -200,7 +200,7 @@ class Div(BinaryOp, BaseASTNode):
             BaseASTNode.add_result('Error Semantico; No se puede dividir por cero')
             raise ValueError('Error Semantico; No se puede dividir por cero')
 
-        return l_value / r_value
+        return int(l_value / r_value)
 
     def print(self):
         return self.eval()

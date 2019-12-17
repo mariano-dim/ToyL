@@ -27,15 +27,15 @@ class ToyLexer(Lexer):
     CLOSE_PARENS = r'\)'
     SEMI_COLON = r'\;'
 
-    # Numero (Por ahora un entero muy especial)
+    # Numero
     NUMBER_TYPE = r'[0-9][0-9]*'
 
     # Cadena de texto
     STRING_TYPE = r'"([^"\n]|(\\"))*"'
 
-    # Special cases
-    # Base ID rule
+    # Regla de identificador basico (ID)
     ID = r'[a-zA-Z][a-zA-Z_0-9_]*'
+    # Casos especiales
     ID['if'] = IF
     ID['else'] = ELSE
     ID['var'] = VAR

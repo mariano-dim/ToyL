@@ -5,4 +5,6 @@ begin
     T := "hello";
 
     S := S / T;
+        print(-> "valor de variable S: " -> S);
+
 end

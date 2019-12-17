@@ -1,14 +1,21 @@
 begin
-    var S : int;
-    S := 10;
+    var Y : int;
+    Y := 10;
 
-    var T : string;
-    T := "hello";
-    do
+    while (Y > 9)
     begin
-        print(->S ->T);
-        S := S-1;
+    var U : int;
+        U := 1;
+        print(-> "valor de variable U: " -> U);
+        print(-> "valor de variable Y: " -> Y);
+        Y := Y - 1;
+        var S : int; S := 1;
+        while (S < 5)
+        begin
+            U := U+1;
+            print(-> "valor de variable S : " -> S);
+            S := S+1;
+        end
     end
-    while (S > 5)
-
+    print(-> "valor de variable U : " -> U);
 end

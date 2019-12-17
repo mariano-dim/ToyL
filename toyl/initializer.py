@@ -48,7 +48,7 @@ def main():
 
     for tok in lexer.tokenize(content):
         BaseASTNode.add_result(
-            'TOKEN: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
+            'LEXEMA: {token:' '<15} {val:' '>15}'.format(token=tok.type, val=tok.value))
 
     # Create parser
     print("Parseando...")
