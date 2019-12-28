@@ -32,8 +32,10 @@ class SymbolTable():
             heap = self.symbols.get(sym)
             # Una vez creada una entrada en el diccionario la Pila siempre existe, aunque puede estar varia
             if heap is None:
-                raise ValueError("Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
-                BaseASTNode.add_result("Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
+                raise ValueError(
+                    "Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
+                BaseASTNode.add_result(
+                    "Error Semantico; Entrada en diccionario sin definicion de Pila".format(sym))
             else:
                 same_value_and_scope = True
                 while same_value_and_scope:
@@ -45,7 +47,7 @@ class SymbolTable():
                     if not scope == value.get_scope():
                         heap.apilar(value)
                         same_value_and_scope = False
-                    #else:
+                    # else:
                        # print('Se elimino variable :' + value.get_name())
                     # Siempre que la Pila este vacia elimino la entrada del diccionario
                     if heap.es_vacia():
@@ -53,8 +55,6 @@ class SymbolTable():
                         # asumir que voy a eliminar una entrada en el diccionario que siempre existe
                         del self.symbols[sym]
                         same_value_and_scope = False
-
-
 
     def get_symbol(self, symbol):
         # Una vez que consulto el elemento, debo tener cuidado de no eliminarlo de la pila
@@ -64,8 +64,10 @@ class SymbolTable():
             heap.apilar(value)
             return value
         else:
-            BaseASTNode.add_result("Error Semantico; Variable {} no fue declarada o no se encuentra dentro del scope".format(symbol))
-            raise ValueError("Error Semantico; Variable {} no fue declarada o no se encuentra dentro del scope".format(symbol))
+            BaseASTNode.add_result(
+                "Error Semantico; Variable {} no fue declarada o no se encuentra dentro del scope".format(symbol))
+            raise ValueError(
+                "Error Semantico; Variable {} no fue declarada o no se encuentra dentro del scope".format(symbol))
 
     def set_symbol_value(self, symbol, value):
         # Value es el valor de un IDentificador. Busco el ID en el diccionario
@@ -80,14 +82,20 @@ class SymbolTable():
                     sw.set_value(value)
                     heap.apilar(sw)
                 else:
-                    BaseASTNode.add_result("Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
-                    raise ValueError("Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
+                    BaseASTNode.add_result(
+                        "Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
+                    raise ValueError(
+                        "Error Semantico; Variable {} no posee su estructura de datos interna con datos".format(symbol))
             else:
-                BaseASTNode.add_result("Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
-                raise ValueError("Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
+                BaseASTNode.add_result(
+                    "Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
+                raise ValueError(
+                    "Error Semantico; Variable {} no posee su estructura de datos interna asociada".format(symbol))
         else:
-            BaseASTNode.add_result("Error Semantico; Variable {} no fue declarada".format(symbol))
-            raise ValueError("Error Semantico; Variable {} no fue declarada".format(symbol))
+            BaseASTNode.add_result(
+                "Error Semantico; Variable {} no fue declarada".format(symbol))
+            raise ValueError(
+                "Error Semantico; Variable {} no fue declarada".format(symbol))
 
     def create_symbol(self, symbol, type, location=None, scope=None):
         # Hay que tener en cuenta si el id es local o no. Una forma de manejar esto es a traves de
