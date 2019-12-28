@@ -6,6 +6,7 @@ begin
     begin
 
         U := 1;
+
         print(-> "valor de variable U: " -> U);
         print(-> "valor de variable Y: " -> Y);
         Y := Y - 1;
